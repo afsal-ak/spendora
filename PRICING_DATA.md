@@ -8,7 +8,7 @@ Verified: 2026-05-09
 
 ### Plans
 
-- Free — ₹0/month ($0/month)
+- Free — ₹0/mnth ($0/month)
 - Go — ₹399/month (~$8/month)
 - Plus — ₹1,999/month ($20/month)
 - Pro — ₹10,699/month (~$100/month)
