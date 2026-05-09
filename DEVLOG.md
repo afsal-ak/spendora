@@ -31,3 +31,22 @@ Still planning the audit engine logic and pricing data structure for different A
 
 **Plan for tomorrow:**  
 Start implementing the audit calculation logic and improve the audit input flow.
+
+
+
+
+## Day 3 — 2026-05-09
+
+**Hours worked:** 4
+
+**What I did:**  
+Implemented the initial audit engine logic for ChatGPT plans. Added structured pricing data, pricing enums, dynamic plan selection in the audit form, and generated audit recommendations based on team size and spending inputs. Also created the first audit result UI section.
+
+**What I learned:**  
+Learned how to structure pricing systems and build conditional recommendation logic for SaaS audit workflows using TypeScript and React state management.
+
+**Blockers / what I'm stuck on:**  
+Still exploring how to scale the audit engine for multiple AI tools while keeping the logic maintainable.
+
+**Plan for tomorrow:**  
+Improve the audit recommendation system, add support for more AI tools, and enhance the audit result UI.
