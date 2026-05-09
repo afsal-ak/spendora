@@ -1,4 +1,19 @@
+"use client";
+
+import { ChatGPTPlans } from "@/enums/chatgpt";
+ import { useMemo, useState } from "react";
+ 
+const tools = {
+  ChatGPT: Object.values(ChatGPTPlans),
+};
+
 export default function AuditFormSection() {
+  const [selectedTool, setSelectedTool] = useState("ChatGPT");
+
+  const plans = useMemo(() => {
+    return tools[selectedTool as keyof typeof tools] || [];
+  }, [selectedTool]);
+
   return (
     <section className="py-24 bg-zinc-50">
       <div className="max-w-5xl mx-auto px-6">
@@ -20,11 +35,12 @@ export default function AuditFormSection() {
                 AI Tool
               </label>
 
-              <select className="w-full h-12 rounded-xl border border-zinc-300 bg-white px-4 text-black outline-none focus:border-black transition">
+              <select
+                value={selectedTool}
+                onChange={(e) => setSelectedTool(e.target.value)}
+                className="w-full h-12 rounded-xl border border-zinc-300 bg-white px-4 text-black outline-none focus:border-black transition"
+              >
                 <option>ChatGPT</option>
-                <option>Claude</option>
-                <option>Cursor</option>
-                <option>GitHub Copilot</option>
               </select>
             </div>
 
@@ -35,9 +51,11 @@ export default function AuditFormSection() {
               </label>
 
               <select className="w-full h-12 rounded-xl border border-zinc-300 bg-white px-4 text-black outline-none focus:border-black transition">
-                <option>Plus</option>
-                <option>Team</option>
-                <option>Enterprise</option>
+                {plans.map((plan) => (
+                  <option key={plan} value={plan}>
+                    {plan}
+                  </option>
+                ))}
               </select>
             </div>
 
