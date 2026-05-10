@@ -20,40 +20,116 @@ export function generateAudit({
   monthlySpend,
   useCase,
 }: AuditInput): AuditResult {
-  // ChatGPT Business → Plus
+  // -------------------------
+  // ChatGPT Rules
+  // -------------------------
+
   if (tool === "ChatGPT" && plan === "business" && teamSize <= 1) {
     return {
       recommendedPlan: "plus",
       estimatedSavingsUSD: 5,
       estimatedSavingsINR: 400,
       reason:
-        "ChatGPT Business is typically unnecessary for solo users. ChatGPT Plus may provide similar value at a lower cost.",
+        "ChatGPT Business is typically unnecessary for solo users.",
     };
   }
 
-  // ChatGPT Pro → Plus
   if (tool === "ChatGPT" && plan === "pro" && monthlySpend < 50) {
     return {
       recommendedPlan: "plus",
       estimatedSavingsUSD: 80,
       estimatedSavingsINR: 8700,
       reason:
-        "Your usage pattern suggests ChatGPT Pro may be excessive for your current workload.",
+        "ChatGPT Pro may be excessive for your current workload.",
     };
   }
 
-  // Small teams on Enterprise
   if (tool === "ChatGPT" && plan === "enterprise" && teamSize < 10) {
     return {
       recommendedPlan: "business",
       estimatedSavingsUSD: 35,
       estimatedSavingsINR: 3000,
       reason:
-        "Enterprise plans are generally better suited for large organizations with advanced compliance requirements.",
+        "Enterprise plans are generally more suitable for larger organizations.",
     };
   }
 
-  // Default fallback
+  // -------------------------
+  // Claude Rules
+  // -------------------------
+
+  if (tool === "Claude" && plan === "max" && monthlySpend < 50) {
+    return {
+      recommendedPlan: "pro",
+      estimatedSavingsUSD: 80,
+      estimatedSavingsINR: 6800,
+      reason:
+        "Claude Max may be unnecessary for moderate usage levels.",
+    };
+  }
+
+  if (tool === "Claude" && plan === "teamPremium" && teamSize < 5) {
+    return {
+      recommendedPlan: "teamStandard",
+      estimatedSavingsUSD: 80,
+      estimatedSavingsINR: 6800,
+      reason:
+        "Premium team seats may be excessive for smaller teams.",
+    };
+  }
+
+  // -------------------------
+  // Gemini Rules
+  // -------------------------
+
+  if (tool === "Gemini" && plan === "ultra" && monthlySpend < 100) {
+    return {
+      recommendedPlan: "pro",
+      estimatedSavingsUSD: 230,
+      estimatedSavingsINR: 18000,
+      reason:
+        "Gemini Ultra is best suited for advanced AI power users.",
+    };
+  }
+
+  if (tool === "Gemini" && plan === "pro" && teamSize <= 1) {
+    return {
+      recommendedPlan: "plus",
+      estimatedSavingsUSD: 12,
+      estimatedSavingsINR: 1500,
+      reason:
+        "Gemini Plus may provide enough functionality for solo workflows.",
+    };
+  }
+
+  // -------------------------
+  // Cursor Rules
+  // -------------------------
+
+  if (tool === "Cursor" && plan === "ultra" && teamSize <= 2) {
+    return {
+      recommendedPlan: "proPlus",
+      estimatedSavingsUSD: 140,
+      estimatedSavingsINR: 12000,
+      reason:
+        "Cursor Ultra may be excessive for smaller development teams.",
+    };
+  }
+
+  if (tool === "Cursor" && plan === "teams" && teamSize <= 1) {
+    return {
+      recommendedPlan: "pro",
+      estimatedSavingsUSD: 20,
+      estimatedSavingsINR: 1700,
+      reason:
+        "Cursor Teams is generally more suitable for collaborative engineering teams.",
+    };
+  }
+
+  // -------------------------
+  // Default
+  // -------------------------
+
   return {
     recommendedPlan: plan,
     estimatedSavingsUSD: 0,
