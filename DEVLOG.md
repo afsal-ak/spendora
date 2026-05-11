@@ -68,3 +68,23 @@ Still refining recommendation accuracy and exploring better ways to compare pric
 
 **Plan for tomorrow:**  
 Improve the audit results UI, add more recommendation scenarios, and continue refining the multi-platform audit experience.
+
+
+
+## Day 5 — 2026-05-11
+
+**Hours worked:** 4
+
+**What I did:**  
+Refactored the audit results into a separate reusable result component and redesigned the audit result UI with savings breakdown cards, recommendation sections, and improved layout structure. Added loading states and implemented localStorage persistence for audit form inputs and generated results to preserve state across page refreshes. Also improved the audit interaction flow by adding regenerate audit behavior when inputs change while keeping previously generated results visible until regeneration.
+
+Started integrating AI-generated audit summaries using the Anthropic API with server-side API routes and fallback summary handling for API failures.
+
+**What I learned:**  
+Learned how to manage more advanced client-side state flows for audit generation, persistence, and regeneration UX patterns in Next.js. Also explored integrating external LLM APIs securely using server-side route handlers and environment variables.
+
+**Blockers / what I'm stuck on:**  
+Currently facing API billing and credit issues while testing Anthropic summary generation. Exploring fallback options and evaluating Gemini integration for faster iteration.
+
+**Plan for tomorrow:**  
+Finish AI-generated summary integration, implement audit email capture flow, and start building audit report delivery/email functionality.
