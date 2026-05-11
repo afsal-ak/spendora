@@ -26,6 +26,8 @@ export default function AuditFormSection() {
   const [useCase, setUseCase] = useState("Coding");
 
   const [result, setResult] = useState<any>(null);
+  const [summary, setSummary] = useState("");
+
   const [submittedData, setSubmittedData] =
     useState<any>(null);
   const plans = useMemo(() => {
@@ -48,6 +50,32 @@ export default function AuditFormSection() {
     });
 
     setResult(auditResult);
+    const response = await fetch(
+      "/api/generate-summary",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tool: selectedTool,
+          plan: selectedPlan,
+          teamSize,
+          monthlySpend,
+          recommendedPlan:
+            auditResult.recommendedPlan,
+          savings:
+            auditResult.estimatedSavingsUSD,
+          reason: auditResult.reason,
+        }),
+      }
+    );
+console.log(response,'response in  audit form');
+
+    const data = await response.json();
+
+    setSummary(data.summary);
+
     setSubmittedData({
       selectedTool,
       selectedPlan,
@@ -253,6 +281,8 @@ export default function AuditFormSection() {
           {result && (
             <AuditResultCard
               result={result}
+              summary={summary}
+
               selectedTool={submittedData?.selectedTool}
               selectedPlan={submittedData?.selectedPlan}
               monthlySpend={submittedData?.monthlySpend}

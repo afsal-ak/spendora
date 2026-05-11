@@ -1,5 +1,6 @@
 interface AuditResultCardProps {
   result: any;
+  summary:string;
   selectedTool: string;
   selectedPlan: string;
   monthlySpend: number;
@@ -8,6 +9,7 @@ interface AuditResultCardProps {
 
 export default function AuditResultCard({
   result,
+  summary,
   selectedTool,
   selectedPlan,
   monthlySpend,
@@ -128,6 +130,17 @@ export default function AuditResultCard({
             </p>
           </div>
         </div>
+
+{/* AI Personalized Summary */}
+<div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
+  <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
+    AI Personalized Summary
+  </p>
+
+  <p className="mt-4 leading-7 text-zinc-700">
+    {summary}
+  </p>
+</div>
 
         {/* CTA */}
         <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-6">
