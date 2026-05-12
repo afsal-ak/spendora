@@ -9,6 +9,7 @@ import {
   leadCaptureSchema,
   LeadCaptureFormData,
 } from "@/schemas/lead-capture.schema";
+import { saveAudit } from "@/services/audit.service";
 
 interface LeadCaptureFormProps {
   result: any;
@@ -54,38 +55,20 @@ export default function LeadCaptureForm({
     try {
       setIsLoading(true);
 
-      const response = await fetch(
-        "/api/save-audit",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            ...values,
-
-            selectedTool,
-            selectedPlan,
-            monthlySpend,
-            teamSize,
-
-            result,
-            summary,
-          }),
-        }
-      );
-
-      const data = await response.json();
+      const data = await saveAudit({
+        ...values,
+        selectedTool,
+        selectedPlan,
+        monthlySpend,
+        teamSize,
+        result,
+        summary,
+      });
 
       if (data.success) {
         alert("Audit saved successfully");
 
-        router.push(
-          `/audit/${data.auditId}`
-        );
+        router.push(`/audit/${data.auditId}` );
       }
     } catch (error) {
       console.error(error);
