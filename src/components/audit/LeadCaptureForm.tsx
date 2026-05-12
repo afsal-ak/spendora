@@ -10,9 +10,10 @@ import {
   LeadCaptureFormData,
 } from "@/schemas/lead-capture.schema";
 import { saveAudit } from "@/services/audit.service";
+import { AuditResult } from "@/types/audit";
 
 interface LeadCaptureFormProps {
-  result: any;
+  result: AuditResult;
   summary: string;
   selectedTool: string;
   selectedPlan: string;

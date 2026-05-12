@@ -1,6 +1,8 @@
+import { AuditResult } from "@/types/audit";
 import LeadCaptureForm from "./LeadCaptureForm";
+
 interface AuditResultCardProps {
-    result: any;
+    result: AuditResult;
     summary: string;
     selectedTool: string;
     selectedPlan: string;

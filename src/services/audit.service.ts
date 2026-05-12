@@ -1,3 +1,5 @@
+import { AuditResult } from "@/types/audit";
+
 interface SaveAuditPayload {
   email: string;
   companyName?: string;
@@ -7,7 +9,7 @@ interface SaveAuditPayload {
   selectedPlan: string;
   monthlySpend: number;
   teamSize: number;
-  result: any;
+  result: AuditResult;
   summary: string;
 }
 

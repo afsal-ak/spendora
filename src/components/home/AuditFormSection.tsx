@@ -21,6 +21,7 @@ import {
   auditSchema,
   AuditFormData,
 } from "@/schemas/audit.schema";
+import { AuditResult } from "@/types/audit";
 
 const tools = {
   ChatGPT: Object.values(ChatGPTPlans),
@@ -32,7 +33,7 @@ const tools = {
 export default function AuditFormSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AuditResult>();
   const [summary, setSummary] = useState("");
   const [submittedData, setSubmittedData] = useState<any>(null);
 
