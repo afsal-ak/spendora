@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface LeadCaptureFormProps {
   result: any;
@@ -20,12 +21,14 @@ export default function LeadCaptureForm({
   teamSize,
 }: LeadCaptureFormProps) {
 
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
-  const [companyName, setCompanyName] =useState("");
+  const [companyName, setCompanyName] = useState("");
 
   const [role, setRole] = useState("");
 
-  const [isLoading, setIsLoading] =useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
@@ -58,6 +61,10 @@ export default function LeadCaptureForm({
       console.log(data);
 
       alert("Audit saved successfully");
+      
+      if (data.success) {
+        router.push(`/audit/${data.auditId}`);
+      }
     } catch (error) {
       console.error(error);
     } finally {
