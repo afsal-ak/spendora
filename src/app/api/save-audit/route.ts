@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { sendAuditEmail } from "@/lib/sendAuditEmail";
 
 export async function POST(req: Request) {
   try {
@@ -49,7 +50,12 @@ export async function POST(req: Request) {
         success: false,
       });
     }
-
+    const emailResponse = await sendAuditEmail({
+      email,
+      auditId: data.id,
+      result,
+    });
+    console.log(emailResponse, 'emailResponse');
     return Response.json({
       success: true,
       auditId: data.id,
