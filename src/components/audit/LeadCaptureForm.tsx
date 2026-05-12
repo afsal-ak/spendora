@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  leadCaptureSchema,
+  LeadCaptureFormData,
+} from "@/schemas/lead-capture.schema";
 
 interface LeadCaptureFormProps {
   result: any;
@@ -23,14 +30,25 @@ export default function LeadCaptureForm({
 
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [companyName, setCompanyName] = useState("");
-
-  const [role, setRole] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LeadCaptureFormData>({
+    resolver: zodResolver(
+      leadCaptureSchema
+    ),
+    defaultValues: {
+      email: "",
+      companyName: "",
+      role: "",
+    },
+  });
 
-  const handleSubmit = async () => {
+  const onSubmit = async (
+    values: LeadCaptureFormData
+  ) => {
     try {
       setIsLoading(true);
 
@@ -38,18 +56,20 @@ export default function LeadCaptureForm({
         "/api/save-audit",
         {
           method: "POST",
+
           headers: {
             "Content-Type":
               "application/json",
           },
+
           body: JSON.stringify({
-            email,
-            companyName,
-            role,
+            ...values,
+
             selectedTool,
             selectedPlan,
             monthlySpend,
             teamSize,
+
             result,
             summary,
           }),
@@ -58,12 +78,12 @@ export default function LeadCaptureForm({
 
       const data = await response.json();
 
-      console.log(data);
-
-      alert("Audit saved successfully");
-      
       if (data.success) {
-        router.push(`/audit/${data.auditId}`);
+        alert("Audit saved successfully");
+
+        router.push(
+          `/audit/${data.auditId}`
+        );
       }
     } catch (error) {
       console.error(error);
@@ -71,7 +91,6 @@ export default function LeadCaptureForm({
       setIsLoading(false);
     }
   };
-
   return (
     <div className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div>
@@ -80,12 +99,18 @@ export default function LeadCaptureForm({
         </h3>
 
         <p className="mt-2 text-zinc-600">
-          Receive your AI spend audit report and
-          optimization insights.
+          Receive your AI spend audit
+          report and optimization
+          insights.
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-6 grid gap-4 md:grid-cols-2"
+      >
+
+
         {/* Email */}
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-medium text-zinc-700">
@@ -94,13 +119,16 @@ export default function LeadCaptureForm({
 
           <input
             type="email"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
+            {...register("email")}
             placeholder="Enter your email"
             className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
           />
+
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         {/* Company */}
@@ -111,12 +139,7 @@ export default function LeadCaptureForm({
 
           <input
             type="text"
-            value={companyName}
-            onChange={(e) =>
-              setCompanyName(
-                e.target.value
-              )
-            }
+            {...register("companyName")}
             placeholder="Optional"
             className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
           />
@@ -130,25 +153,22 @@ export default function LeadCaptureForm({
 
           <input
             type="text"
-            value={role}
-            onChange={(e) =>
-              setRole(e.target.value)
-            }
+            {...register("role")}
             placeholder="Optional"
             className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
           />
         </div>
-      </div>
 
-      <button
-        onClick={handleSubmit}
-        disabled={isLoading}
-        className="mt-6 h-12 w-full rounded-xl bg-black font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-      >
-        {isLoading
-          ? "Saving Audit..."
-          : "Send My Audit Report"}
-      </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="mt-2 h-12 w-full rounded-xl bg-black font-semibold text-white transition hover:opacity-90 disabled:opacity-50 md:col-span-2"
+        >
+          {isLoading
+            ? "Saving Audit..."
+            : "Send My Audit Report"}
+        </button>
+      </form>
     </div>
   );
 }
