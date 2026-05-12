@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import ShareAuditButton from "@/components/audit/ShareAuditButton";
 
 interface AuditPageProps {
   params: Promise<{
@@ -113,6 +114,7 @@ console.log(data,'data');
             {data.summary}
           </p>
         </div>
+        <ShareAuditButton />
       </div>
     </main>
   );
