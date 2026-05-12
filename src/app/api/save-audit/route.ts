@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { sendAuditEmail } from "@/lib/sendAuditEmail";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(
   req: Request
@@ -7,6 +8,20 @@ export async function POST(
   try {
     const body = await req.json();
 
+    //rate limiting protection
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+
+    const allowed = rateLimit(ip);
+
+    if (!allowed) {
+      return Response.json(
+        {
+          success: false,
+          message: "Too many requests",
+        },
+        { status: 429 }
+      );
+    }
     // Honeypot protection
     if (body.companyFax) {
       return Response.json(
@@ -62,7 +77,7 @@ export async function POST(
       );
     }
 
-     try {
+    try {
       const emailResponse =
         await sendAuditEmail({
           email,
@@ -70,9 +85,9 @@ export async function POST(
           result,
         });
 
-      console.log(emailResponse,  "emailResponse" );
+      console.log(emailResponse, "emailResponse");
     } catch (emailError) {
-      console.error("Email sending failed:",emailError  );
+      console.error("Email sending failed:", emailError);
     }
     return Response.json({
       success: true,
@@ -83,7 +98,7 @@ export async function POST(
     return Response.json(
       {
         success: false,
-        message:"Something went wrong",
+        message: "Something went wrong",
       },
       { status: 500 }
     );
