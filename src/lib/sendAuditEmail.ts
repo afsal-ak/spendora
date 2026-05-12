@@ -1,8 +1,6 @@
 import { AuditResult } from "@/types/audit";
-import { getResend } from "./getResend";
-  const resend = getResend();
-
-
+import { getResend } from "./resend";
+ 
 
 interface SendAuditEmailProps {
   email: string;
@@ -15,6 +13,8 @@ export async function sendAuditEmail({
   auditId,
   result,
 }: SendAuditEmailProps) {
+    const resend = getResend();
+
  const response = await resend.emails.send({
     from: "onboarding@resend.dev",
 
