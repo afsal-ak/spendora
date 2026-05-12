@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import ShareAuditButton from "@/components/audit/ShareAuditButton";
 import SpendComparisonChart from "@/components/audit/SpendComparisonChart";
 import type { Metadata } from "next";
+import { getSupabase } from "@/lib/getSupabase";
 
 export async function generateMetadata():
   Promise<Metadata> {
@@ -36,6 +37,8 @@ export default async function AuditPage({
   params,
 }: AuditPageProps) {
   const { id } = await params;
+
+  const supabase=getSupabase()
 
   const { data, error } = await supabase
     .from("audits")

@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import { sendAuditEmail } from "@/lib/sendAuditEmail";
 import { rateLimit } from "@/lib/rate-limit";
+import { getSupabase } from "@/lib/getSupabase";
+
 
 export async function POST(
   req: Request
@@ -45,6 +47,8 @@ export async function POST(
       summary,
     } = body;
 
+     const supabase=getSupabase()
+   
     const { data, error } =
       await supabase
         .from("audits")
