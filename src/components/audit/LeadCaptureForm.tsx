@@ -43,6 +43,8 @@ export default function LeadCaptureForm({
       email: "",
       companyName: "",
       role: "",
+      companyFax: "",
+
     },
   });
 
@@ -110,7 +112,13 @@ export default function LeadCaptureForm({
         className="mt-6 grid gap-4 md:grid-cols-2"
       >
 
-
+        <input
+          type="text"
+          {...register("companyFax")}
+          className="hidden"
+          tabIndex={-1}
+          autoComplete="off"
+        />
         {/* Email */}
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-medium text-zinc-700">

@@ -7,7 +7,15 @@ const genAI = new GoogleGenerativeAI(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+    if (body.companyFax) {
+      return Response.json(
+        {
+          success: false,
+          message: "Spam detected",
+        },
+        { status: 500 }
+      );
+    }
     console.log(body, "body");
 
     const {
@@ -50,8 +58,8 @@ Professional, concise, startup-friendly.
 `;
 
     const model = genAI.getGenerativeModel({
-  //    model: "gemini-1.5-flash",
-      model:process.env.GEMINI_MODEL!
+      //    model: "gemini-1.5-flash",
+      model: process.env.GEMINI_MODEL!
     });
 
     const result = await model.generateContent(

@@ -49,6 +49,7 @@ export default function AuditFormSection() {
       monthlySpend: 20,
       teamSize: 1,
       useCase: "Coding",
+      companyFax:""
     },
   });
   const selectedTool = watch(
@@ -97,7 +98,7 @@ export default function AuditFormSection() {
         "monthlySpend",
         parsed.monthlySpend
       );
-    setValue(
+      setValue(
         "teamSize",
         parsed.teamSize
       );
@@ -226,6 +227,13 @@ export default function AuditFormSection() {
             )}
             className="grid gap-6 md:grid-cols-2"
           >
+            <input
+  type="text"
+  {...register("companyFax")}
+  className="absolute left-[-9999px]"
+  tabIndex={-1}
+  autoComplete="off"
+/>
             {/* AI Tool */}
             <div>
               <label className="mb-2 block text-sm font-medium text-zinc-700">
@@ -313,8 +321,8 @@ export default function AuditFormSection() {
                   setHasChanges(true)
                 }
                 className={`h-12 w-full rounded-xl border bg-white px-4 text-black outline-none transition ${errors.monthlySpend
-                    ? "border-red-500"
-                    : "border-zinc-300 focus:border-black"
+                  ? "border-red-500"
+                  : "border-zinc-300 focus:border-black"
                   }`}
               />
 
@@ -346,8 +354,8 @@ export default function AuditFormSection() {
                   setHasChanges(true)
                 }
                 className={`h-12 w-full rounded-xl border bg-white px-4 text-black outline-none transition ${errors.teamSize
-                    ? "border-red-500"
-                    : "border-zinc-300 focus:border-black"
+                  ? "border-red-500"
+                  : "border-zinc-300 focus:border-black"
                   }`}
               />
 
@@ -407,6 +415,7 @@ export default function AuditFormSection() {
                     : "Generate Audit"}
               </button>
             </div>
+            
           </form>
 
           {/* Result */}

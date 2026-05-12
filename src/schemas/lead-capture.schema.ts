@@ -6,6 +6,10 @@ export const leadCaptureSchema = z.object({
   ),
   companyName: z.string().optional(),
   role: z.string().optional(),
+    // Honeypot field
+    companyFax:
+      z.string().optional(),
+ 
 });
 
 export type LeadCaptureFormData = z.infer<
