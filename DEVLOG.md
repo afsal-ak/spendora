@@ -88,3 +88,26 @@ Currently facing API billing and credit issues while testing Anthropic summary g
 
 **Plan for tomorrow:**  
 Finish AI-generated summary integration, implement audit email capture flow, and start building audit report delivery/email functionality.
+
+
+## Day 6 — 2026-05-12
+
+**Hours worked:** 6
+
+**What I did:**  
+Integrated AI-generated audit summaries using the Gemini API after facing Anthropic API credit limitations during testing. Implemented server-side summary generation with fallback handling for API failures to ensure the audit flow remains functional even if the AI response fails.
+
+Built the audit lead capture and email delivery workflow using Resend for transactional email sending. Added backend audit submission handling and connected the email flow to audit generation so users can receive their audit reports directly after submission.
+
+Refactored both the audit form and lead capture form using React Hook Form and Zod validation for cleaner form state management, reusable schema validation, and real-time validation feedback. Organized validation logic into reusable schema files to improve maintainability and architecture consistency across the project.
+
+Also improved the overall UX with loading states, validation feedback, and cleaner audit interaction flows.
+
+**What I learned:**  
+Learned how to integrate Gemini-based AI generation securely through server-side API routes and explored handling fallback flows for unreliable external AI APIs. Also gained deeper experience with scalable form architecture using React Hook Form and Zod in Next.js applications, along with transactional email workflows using Resend.
+
+**Blockers / what I'm stuck on:**  
+Faced API credit limitations while testing Anthropic summary generation, which interrupted the initial AI summary workflow. Switched to Gemini API integration for faster iteration and continued refining fallback handling for AI generation failures. Also still planning the implementation for public shareable audit URLs with sensitive user information removed from the public version.
+
+**Plan for tomorrow:**  
+Complete lightweight abuse protection using a honeypot strategy and document the implementation reasoning. Finish remaining required documentation files including PROMPTS.md, PRICING_DATA.md, ARCHITECTURE.md, README.md, GTM.md, ECONOMICS.md, METRICS.md, and REFLECTION.md. Set up GitHub Actions CI for linting and tests, deploy the application to Vercel, verify production flows end-to-end, complete remaining user interviews and pricing verification, then prepare and submit the final assignment deliverables.
