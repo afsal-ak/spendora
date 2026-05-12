@@ -1,9 +1,8 @@
 import { AuditResult } from "@/types/audit";
-import { Resend } from "resend";
+import { getResend } from "./getResend";
+  const resend = getResend();
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
-);
+
 
 interface SendAuditEmailProps {
   email: string;

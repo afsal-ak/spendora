@@ -1,7 +1,6 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/getSupabase";
 import { sendAuditEmail } from "@/lib/sendAuditEmail";
 import { rateLimit } from "@/lib/rate-limit";
-import { getSupabase } from "@/lib/getSupabase";
 
 
 export async function POST(
