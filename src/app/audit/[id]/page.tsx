@@ -1,6 +1,31 @@
 import { supabase } from "@/lib/supabase";
 import ShareAuditButton from "@/components/audit/ShareAuditButton";
 import SpendComparisonChart from "@/components/audit/SpendComparisonChart";
+import type { Metadata } from "next";
+
+export async function generateMetadata():
+  Promise<Metadata> {
+  return {
+    title:
+     "Spendora AI Audit Report",
+    description:
+      "See AI tooling savings opportunities and optimization insights with Spendora.",
+    openGraph: {
+      title:
+        "Spendora AI Audit Report",
+      description:
+        "Optimize your AI stack and reduce monthly spend.",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title:
+        "Spendora AI Audit Report",
+      description:
+        "Discover potential AI tooling savings with Spendora.",
+    },
+  };
+}
 interface AuditPageProps {
   params: Promise<{
     id: string;
