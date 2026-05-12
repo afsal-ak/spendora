@@ -21,7 +21,7 @@ import {
   auditSchema,
   AuditFormData,
 } from "@/schemas/audit.schema";
-import { AuditResult } from "@/types/audit";
+import { AuditResult, SubmittedAuditData } from "@/types/audit";
 
 const tools = {
   ChatGPT: Object.values(ChatGPTPlans),
@@ -35,8 +35,10 @@ export default function AuditFormSection() {
   const [hasChanges, setHasChanges] = useState(false);
   const [result, setResult] = useState<AuditResult>();
   const [summary, setSummary] = useState("");
-  const [submittedData, setSubmittedData] = useState<any>(null);
-
+  const [submittedData, setSubmittedData] =
+    useState<SubmittedAuditData | null>(
+      null
+    );
   const {
     register,
     watch,
@@ -149,7 +151,7 @@ export default function AuditFormSection() {
         generateAudit({
           tool: values.selectedTool,
           plan: values.selectedPlan,
-          monthlySpend:values.monthlySpend,
+          monthlySpend: values.monthlySpend,
           teamSize: values.teamSize,
           useCase: values.useCase,
         });
@@ -400,16 +402,16 @@ export default function AuditFormSection() {
               result={result}
               summary={summary}
               selectedTool={
-                submittedData?.selectedTool
+                submittedData?.selectedTool || ""
               }
               selectedPlan={
-                submittedData?.selectedPlan
+                submittedData?.selectedPlan || ""
               }
               monthlySpend={
-                submittedData?.monthlySpend
+                submittedData?.monthlySpend|| 0
               }
               teamSize={
-                submittedData?.teamSize
+                submittedData?.teamSize|| 0
               }
             />
           )}
