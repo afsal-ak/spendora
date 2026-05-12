@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import ShareAuditButton from "@/components/audit/ShareAuditButton";
-
+import SpendComparisonChart from "@/components/audit/SpendComparisonChart";
 interface AuditPageProps {
   params: Promise<{
     id: string;
@@ -11,14 +11,14 @@ export default async function AuditPage({
   params,
 }: AuditPageProps) {
   const { id } = await params;
-  
-  const {data,error}=await supabase
+
+  const { data, error } = await supabase
     .from("audits")
     .select("*")
     .eq("id", id)
     .single();
-console.log(params,'params');
-console.log(data,'data');
+  console.log(params, 'params');
+  console.log(data, 'data');
 
   if (error || !data) {
     return (
@@ -115,6 +115,14 @@ console.log(data,'data');
           </p>
         </div>
         <ShareAuditButton />
+        <SpendComparisonChart
+          currentSpend={data.monthly_spend}
+          recommendedSpend={
+            data.monthly_spend -
+            data.estimated_savings
+          }
+          savings={data.estimated_savings}
+        />
       </div>
     </main>
   );
