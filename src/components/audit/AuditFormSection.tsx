@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-
 import { useForm } from "react-hook-form";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ChatGPTPlans } from "@/enums/chatgpt";
@@ -12,9 +10,7 @@ import { GeminiPlans } from "@/enums/gemini";
 import { CursorPlans } from "@/enums/cursor";
 
 import { generateSummary } from "@/services/summary.service";
-
 import { generateAudit } from "@/lib/audit-engine";
-
 import AuditResultCard from "@/components/audit/AuditResultCard";
 
 import {
@@ -45,10 +41,10 @@ export default function AuditFormSection() {
   const [hasChanges, setHasChanges] = useState(false);
   const [result, setResult] = useState<AuditResult>();
   const [summary, setSummary] = useState("");
-  const [submittedData, setSubmittedData] =
-    useState<SubmittedAuditData | null>(
-      null
-    );
+  const [submittedData, setSubmittedData] = useState<SubmittedAuditData | null>(null);
+
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
   const {
     register,
     watch,
@@ -67,6 +63,7 @@ export default function AuditFormSection() {
       companyFax: ""
     },
   });
+
   const selectedTool = watch(
     "selectedTool"
   );
@@ -146,49 +143,66 @@ export default function AuditFormSection() {
     teamSize,
     useCase,
   ]);
-
   const onSubmit = async (
     values: AuditFormData
   ) => {
     try {
       setIsLoading(true);
-
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1200)
-      );
+      setSummary("");
 
       const auditResult =
         generateAudit({
           tool: values.selectedTool,
           plan: values.selectedPlan,
-          monthlySpend: values.monthlySpend,
-          teamSize: values.teamSize,
-          useCase: values.useCase,
+          monthlySpend:
+            values.monthlySpend,
+          teamSize:
+            values.teamSize,
+          useCase:
+            values.useCase,
         });
 
       setResult(auditResult);
-
-      const data = await generateSummary({
-        tool: values.selectedTool,
-        plan: values.selectedPlan,
-        teamSize: values.teamSize,
-        monthlySpend: values.monthlySpend,
-        recommendedPlan: auditResult.recommendedPlan,
-        savings: auditResult.estimatedSavingsUSD,
-        reason: auditResult.reason,
-      });
-
-      setSummary(data.summary);
       setSubmittedData(values);
+
       localStorage.setItem(
         "spendora-audit-result",
         JSON.stringify(auditResult)
       );
+
       setHasChanges(false);
+      setIsLoading(false);
+
+      setIsGeneratingSummary(true);
+
+      const data =
+        await generateSummary({
+          tool:
+            values.selectedTool,
+          plan:
+            values.selectedPlan,
+          teamSize:
+            values.teamSize,
+          monthlySpend:
+            values.monthlySpend,
+          recommendedPlan:
+            auditResult.recommendedPlan,
+          recommendedTool:
+            auditResult.recommendedTool!,
+          recommendationType:
+            auditResult.recommendationType,
+          savings:
+            auditResult.estimatedSavingsUSD,
+          reason:
+            auditResult.reason,
+        });
+
+      setSummary(data.summary);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
+      setIsGeneratingSummary(false);
     }
   };
 
@@ -294,7 +308,7 @@ export default function AuditFormSection() {
             {/* Monthly Spend */}
             <div>
               <label className="mb-2 block text-sm font-medium text-zinc-700">
-                Monthly Spend
+                Monthly Spend(USD)
               </label>
 
               <input
@@ -432,6 +446,9 @@ export default function AuditFormSection() {
               }
               teamSize={
                 submittedData?.teamSize || 0
+              }
+              isGeneratingSummary={
+                isGeneratingSummary
               }
             />
           )}
