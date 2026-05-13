@@ -35,6 +35,9 @@ Focus on:
 Do not exaggerate.
 Do not invent tools or plans.
 Use the provided recommendation exactly.
+Avoid markdown formatting.
+Return plain text only.
+Do not repeat identical sentence structures.
 
 Current Tool: ${tool}
 Current Plan: ${plan}
