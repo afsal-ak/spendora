@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import {
   leadCaptureSchema,
@@ -12,14 +13,7 @@ import {
 import { saveAudit } from "@/services/audit.service";
 import { AuditResult } from "@/types/audit";
 
-interface aLeadCaptureFormProps {
-  result: AuditResult;
-  summary: string;
-  selectedTool: string;
-  selectedPlan: string;
-  monthlySpend: number;
-  teamSize: number;
-}
+
 interface LeadCaptureFormProps {
   result: AuditResult;
   summary: string;
@@ -55,7 +49,7 @@ export default function LeadCaptureForm({
       email: "",
       companyName: "",
       role: "",
-      companyFax: "",
+      companyFax: "s",
 
     },
   });
@@ -77,12 +71,15 @@ export default function LeadCaptureForm({
       });
 
       if (data.success) {
-        alert("Audit saved successfully");
+        toast.success("Audit saved successfully");
 
         router.push(`/audit/${data.auditId}`);
       }
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       setIsLoading(false);
     }

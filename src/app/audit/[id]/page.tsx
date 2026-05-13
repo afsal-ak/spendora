@@ -51,8 +51,22 @@ export default async function AuditPage({
   const { data, error } =
     await supabase
       .from("audits")
-      .select("*")
-      .eq("id", id)
+      .select(`
+      id,
+      name,
+      role,
+      tool,
+      plan,
+      monthly_spend,
+      team_size,
+      recommendation_type,
+      recommended_tool,
+      recommended_plan,
+      estimated_savings,
+      summary,
+      reason
+    `)
+     .eq("id", id)
       .single();
 
   if (error || !data) {

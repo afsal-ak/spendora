@@ -1,12 +1,11 @@
 "use client";
-
-export default function ShareAuditButton() {
+import { toast } from 'sonner';
+ export default function ShareAuditButton() {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(
       window.location.href
     );
-
-    alert("Link copied!");
+    toast.success("Link copied!");
   };
 
   return (
