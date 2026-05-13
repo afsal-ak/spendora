@@ -49,7 +49,7 @@ export default function LeadCaptureForm({
       email: "",
       companyName: "",
       role: "",
-      companyFax: "s",
+      companyFax: "",
 
     },
   });

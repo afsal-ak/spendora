@@ -22,6 +22,13 @@ import { OpenAIApiPlans } from "@/enums/OpenAIApi";
 import { AnthropicApiPlans } from "@/enums/Anthropic";
 import { WindsurfPlans } from "@/enums/Windsurf";
 import { GithubCopilotPlans } from "@/enums/copilot";
+import { chatgptPricing } from "@/data/chatgpt";
+import { githubCopilotPricing } from "@/data/copilot";
+import { windsurfPricing } from "@/data/Windsurf";
+import { geminiPricing } from "@/data/gemini";
+import { cursorPricing } from "@/data/cursor";
+import { claudePricing } from "@/data/claude";
+import { toast } from "sonner";
 
 const tools = {
   ChatGPT: Object.values(ChatGPTPlans),
@@ -34,7 +41,15 @@ const tools = {
   "Anthropic API": Object.values(AnthropicApiPlans),
 };
 
-
+const pricingMap = {
+  ChatGPT: chatgptPricing,
+  Claude: claudePricing,
+  Cursor: cursorPricing,
+  Gemini: geminiPricing,
+  Windsurf: windsurfPricing,
+  "GitHub Copilot":
+    githubCopilotPricing,
+};
 
 export default function AuditFormSection() {
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +60,43 @@ export default function AuditFormSection() {
 
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
+  function getMinimumSpend(
+    tool: string,
+    plan: string,
+    teamSize: number
+  ) {
+    const toolPricing =
+      pricingMap[
+      tool as keyof typeof pricingMap
+      ];
+
+    const pricing =
+      toolPricing?.[
+      plan as keyof typeof toolPricing
+      ] as any;
+
+    if (!pricing) return 0;
+    // enterprise/custom pricing
+    if (pricing.customPricing) {
+      return 100;
+    }
+    // usage based pricing
+    if (pricing.usageBased) {
+      return 0;
+    }
+    const basePrice =
+      pricing.priceUSD || 0;
+
+    const minUsers =
+      pricing.minUsers || 1;
+
+    const effectiveSeats =
+      Math.max(teamSize, minUsers);
+
+    return (
+      basePrice * effectiveSeats
+    );
+  }
   const {
     register,
     watch,
@@ -149,7 +201,23 @@ export default function AuditFormSection() {
     try {
       setIsLoading(true);
       setSummary("");
+      const minimumSpend =
+        getMinimumSpend(
+          values.selectedTool,
+          values.selectedPlan,
+          values.teamSize
+        );
 
+      if (
+        values.monthlySpend <
+        minimumSpend
+      ) {
+        toast.error(
+          `Minimum expected spend for the selected ${values.selectedPlan} plan is approximately $${minimumSpend}/month.`
+        );
+
+        return;
+      }
       const auditResult =
         generateAudit({
           tool: values.selectedTool,
