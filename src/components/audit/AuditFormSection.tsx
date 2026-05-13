@@ -29,6 +29,7 @@ import { geminiPricing } from "@/data/gemini";
 import { cursorPricing } from "@/data/cursor";
 import { claudePricing } from "@/data/claude";
 import { toast } from "sonner";
+import { getMinimumSpend } from "@/lib/pricing-validation";
 
 const tools = {
   ChatGPT: Object.values(ChatGPTPlans),
@@ -41,15 +42,6 @@ const tools = {
   "Anthropic API": Object.values(AnthropicApiPlans),
 };
 
-const pricingMap = {
-  ChatGPT: chatgptPricing,
-  Claude: claudePricing,
-  Cursor: cursorPricing,
-  Gemini: geminiPricing,
-  Windsurf: windsurfPricing,
-  "GitHub Copilot":
-    githubCopilotPricing,
-};
 
 export default function AuditFormSection() {
   const [isLoading, setIsLoading] = useState(false);
@@ -60,43 +52,6 @@ export default function AuditFormSection() {
 
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
-  function getMinimumSpend(
-    tool: string,
-    plan: string,
-    teamSize: number
-  ) {
-    const toolPricing =
-      pricingMap[
-      tool as keyof typeof pricingMap
-      ];
-
-    const pricing =
-      toolPricing?.[
-      plan as keyof typeof toolPricing
-      ] as any;
-
-    if (!pricing) return 0;
-    // enterprise/custom pricing
-    if (pricing.customPricing) {
-      return 100;
-    }
-    // usage based pricing
-    if (pricing.usageBased) {
-      return 0;
-    }
-    const basePrice =
-      pricing.priceUSD || 0;
-
-    const minUsers =
-      pricing.minUsers || 1;
-
-    const effectiveSeats =
-      Math.max(teamSize, minUsers);
-
-    return (
-      basePrice * effectiveSeats
-    );
-  }
   const {
     register,
     watch,
