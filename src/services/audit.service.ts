@@ -12,7 +12,6 @@ interface SaveAuditPayload {
   result: AuditResult;
   summary: string;
 }
-
 export async function saveAudit(
   payload: SaveAuditPayload
 ) {
@@ -20,12 +19,27 @@ export async function saveAudit(
     "/api/save-audit",
     {
       method: "POST",
+
       headers: {
-        "Content-Type":"application/json",
+        "Content-Type":
+          "application/json",
       },
-      body: JSON.stringify(payload),
+
+      body: JSON.stringify(
+        payload
+      ),
     }
   );
 
-  return response.json();
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+      "Failed to save audit"
+    );
+  }
+
+  return data;
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import {
   leadCaptureSchema,
@@ -12,6 +13,7 @@ import {
 import { saveAudit } from "@/services/audit.service";
 import { AuditResult } from "@/types/audit";
 
+
 interface LeadCaptureFormProps {
   result: AuditResult;
   summary: string;
@@ -19,8 +21,8 @@ interface LeadCaptureFormProps {
   selectedPlan: string;
   monthlySpend: number;
   teamSize: number;
+  isGeneratingSummary: boolean;
 }
-
 export default function LeadCaptureForm({
   result,
   summary,
@@ -28,6 +30,8 @@ export default function LeadCaptureForm({
   selectedPlan,
   monthlySpend,
   teamSize,
+  isGeneratingSummary
+
 }: LeadCaptureFormProps) {
 
   const router = useRouter();
@@ -67,12 +71,15 @@ export default function LeadCaptureForm({
       });
 
       if (data.success) {
-        alert("Audit saved successfully");
+        toast.success("Audit saved successfully");
 
-        router.push(`/audit/${data.auditId}` );
+        router.push(`/audit/${data.auditId}`);
       }
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,21 +88,24 @@ export default function LeadCaptureForm({
     <div className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
       <div>
         <h3 className="text-2xl font-bold text-black">
-          Get Full Audit Report
+          Get Your Audit Report
         </h3>
 
         <p className="mt-2 text-zinc-600">
-          Receive your AI spend audit
-          report and optimization
-          insights.
+          Generate a personalized AI
+          spend audit report with
+          workflow optimization insights
+          and receive a copy in your
+          email inbox.
         </p>
       </div>
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(
+          onSubmit
+        )}
         className="mt-6 grid gap-4 md:grid-cols-2"
       >
-
         <input
           type="text"
           {...register("companyFax")}
@@ -103,6 +113,7 @@ export default function LeadCaptureForm({
           tabIndex={-1}
           autoComplete="off"
         />
+
         {/* Email */}
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-medium text-zinc-700">
@@ -113,7 +124,7 @@ export default function LeadCaptureForm({
             type="email"
             {...register("email")}
             placeholder="Enter your email"
-            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
+            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none transition focus:border-black"
           />
 
           {errors.email && (
@@ -133,7 +144,7 @@ export default function LeadCaptureForm({
             type="text"
             {...register("companyName")}
             placeholder="Optional"
-            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
+            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none transition focus:border-black"
           />
         </div>
 
@@ -147,19 +158,27 @@ export default function LeadCaptureForm({
             type="text"
             {...register("role")}
             placeholder="Optional"
-            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none focus:border-black"
+            className="h-12 w-full rounded-xl border border-zinc-300 px-4 outline-none transition focus:border-black"
           />
         </div>
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || isGeneratingSummary}
           className="mt-2 h-12 w-full rounded-xl bg-black font-semibold text-white transition hover:opacity-90 disabled:opacity-50 md:col-span-2"
         >
-          {isLoading
-            ? "Saving Audit..."
-            : "Send My Audit Report"}
+          {isGeneratingSummary
+            ? "Generating AI Summary..."
+            : isLoading
+              ? "Preparing Report..."
+              : "Generate Full Audit Report"}
         </button>
+
+        <p className="text-center text-xs text-zinc-500 md:col-span-2">
+          No spam. Your information is
+          only used to deliver your
+          audit report.
+        </p>
       </form>
     </div>
   );

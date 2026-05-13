@@ -1,8 +1,6 @@
 export enum CursorPlans {
   HOBBY = "hobby",
   PRO = "pro",
-  PRO_PLUS = "proPlus",
-  ULTRA = "ultra",
-  TEAMS = "teams",
+  BUSINESS = "business",
   ENTERPRISE = "enterprise",
 }

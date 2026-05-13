@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { buildAuditSummaryPrompt } from "@/prompts/audit-summary.prompt";
 import { rateLimit } from "@/lib/rate-limit";
 
 const genAI = new GoogleGenerativeAI(
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     //rate limiting
-    const ip =  req.headers.get("x-forwarded-for") || "unknown";
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
 
     const allowed = rateLimit(ip);
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       return Response.json(
         {
           success: false,
-          message:"Too many requests",
+          message: "Too many requests",
         },
         { status: 429 }
       );
@@ -33,47 +33,31 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    console.log(body, "body");
-
+ 
     const {
       tool,
       plan,
       teamSize,
       monthlySpend,
       recommendedPlan,
+      recommendedTool,
+      recommendationType,
       savings,
       reason,
     } = body;
 
-    const prompt = `
-You are an AI spend optimization advisor.
-Generate a concise personalized AI spend audit summary
-between 60 and 100 words.
-
-Focus on:
-- cost efficiency
-- workflow fit
-- actionable recommendation
-
-Do not exaggerate.
-Avoid repeating exact numbers excessively.
-Keep the tone concise and practical.
-
-Current Tool: ${tool}
-Current Plan: ${plan}
-Team Size: ${teamSize}
-Monthly Spend: $${monthlySpend}
-
-Recommended Plan: ${recommendedPlan}
-Estimated Savings: $${savings}
-
-Reason:
-${reason}
-
-Tone:
-Professional, concise, startup-friendly.
-`;
-
+    const prompt =
+      buildAuditSummaryPrompt({
+        tool,
+        plan,
+        teamSize,
+        monthlySpend,
+        recommendedTool,
+        recommendedPlan,
+        recommendationType,
+        savings,
+        reason,
+      });
     const model = genAI.getGenerativeModel({
       model: process.env.GEMINI_MODEL!
     });
@@ -83,17 +67,15 @@ Professional, concise, startup-friendly.
     );
     const response = result.response;
     const summary = response.text();
-    console.log(summary, "AI SUMMARY");
-    return Response.json({
+     return Response.json({
       success: true,
       summary,
     });
   } catch (error) {
-    console.error("GEMINI ERROR:", error);
-    return Response.json({
+     return Response.json({
       success: false,
       summary:
-        "Your current AI tooling setup shows optimization opportunities that could reduce monthly costs while maintaining productivity.",
+      "Your current AI setup may have optimization opportunities based on workflow fit, team size, and pricing efficiency. Consider reviewing the recommended plan and tool configuration to improve productivity and reduce unnecessary spend.",
     });
   }
 }
