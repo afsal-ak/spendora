@@ -1,12 +1,3 @@
-// interface GenerateSummaryPayload {
-//   tool: string;
-//   plan: string;
-//   teamSize: number;
-//   monthlySpend: number;
-//   recommendedPlan: string;
-//   savings: number;
-//   reason: string;
-// }
 interface GenerateSummaryPayload {
   tool: string;
   plan: string;

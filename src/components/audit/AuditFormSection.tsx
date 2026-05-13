@@ -22,12 +22,7 @@ import { OpenAIApiPlans } from "@/enums/OpenAIApi";
 import { AnthropicApiPlans } from "@/enums/Anthropic";
 import { WindsurfPlans } from "@/enums/Windsurf";
 import { GithubCopilotPlans } from "@/enums/copilot";
-import { chatgptPricing } from "@/data/chatgpt";
-import { githubCopilotPricing } from "@/data/copilot";
-import { windsurfPricing } from "@/data/Windsurf";
-import { geminiPricing } from "@/data/gemini";
-import { cursorPricing } from "@/data/cursor";
-import { claudePricing } from "@/data/claude";
+
 import { toast } from "sonner";
 import { getMinimumSpend } from "@/lib/pricing-validation";
 

@@ -3,7 +3,7 @@ interface AuditSummaryPromptParams {
   plan: string;
   teamSize: number;
   monthlySpend: number;
-  recommendedTool: string;
+  recommendedTool?: string;
   recommendedPlan: string;
   recommendationType: string;
   savings: number;

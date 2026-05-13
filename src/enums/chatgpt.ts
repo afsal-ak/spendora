@@ -1,7 +1,7 @@
 export enum ChatGPTPlans {
 
   PLUS = "plus",
-  TEAM = "team",
+  BUSINESS = "business",
   ENTERPRISE = "enterprise",
 
 }

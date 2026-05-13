@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+
 import { buildAuditSummaryPrompt } from "@/prompts/audit-summary.prompt";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -9,8 +10,17 @@ const genAI = new GoogleGenerativeAI(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    //rate limiting
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
+
+    console.log({
+      requestBody: body,
+    });
+
+    // RATE LIMITING
+
+    const ip =
+      req.headers.get(
+        "x-forwarded-for"
+      ) || "unknown";
 
     const allowed = rateLimit(ip);
 
@@ -18,22 +28,26 @@ export async function POST(req: Request) {
       return Response.json(
         {
           success: false,
-          message: "Too many requests",
+          message:
+            "Too many requests",
         },
         { status: 429 }
       );
     }
-    //honeypot protection
+
+    // HONEYPOT PROTECTION
+
     if (body.companyFax) {
       return Response.json(
         {
           success: false,
-          message: "Spam detected",
+          message:
+            "Spam detected",
         },
         { status: 400 }
       );
     }
- 
+
     const {
       tool,
       plan,
@@ -45,6 +59,32 @@ export async function POST(req: Request) {
       savings,
       reason,
     } = body;
+
+    console.log({
+      tool,
+      plan,
+      teamSize,
+      monthlySpend,
+      recommendedTool,
+      recommendedPlan,
+      recommendationType,
+      savings,
+      reason,
+    });
+
+    // ENV DEBUGGING
+
+    console.log({
+      apiKeyExists:
+        !!process.env
+          .GEMINI_API_KEY,
+
+      model:
+        process.env
+          .GEMINI_MODEL,
+    });
+
+    // BUILD PROMPT
 
     const prompt =
       buildAuditSummaryPrompt({
@@ -58,24 +98,53 @@ export async function POST(req: Request) {
         savings,
         reason,
       });
-    const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL!
+
+    console.log({
+      generatedPrompt:
+        prompt,
     });
 
-    const result = await model.generateContent(
-      prompt
-    );
-    const response = result.response;
-    const summary = response.text();
-     return Response.json({
+    // GEMINI MODEL
+
+    const model =
+      genAI.getGenerativeModel({
+        model:
+          process.env
+            .GEMINI_MODEL!,
+      });
+
+    // GENERATE SUMMARY
+
+    const result =
+      await model.generateContent(
+        prompt
+      );
+
+    const response =
+      result.response;
+
+    const summary =
+      response.text();
+
+    return Response.json({
       success: true,
       summary,
     });
   } catch (error) {
-     return Response.json({
-      success: false,
-      summary:
-      "Your current AI setup may have optimization opportunities based on workflow fit, team size, and pricing efficiency. Consider reviewing the recommended plan and tool configuration to improve productivity and reduce unnecessary spend.",
-    });
+    console.error(
+      "Gemini summary generation failed:",
+      error
+    );
+
+    return Response.json(
+      {
+        success: false,
+
+        summary:
+          "Your current AI setup may have optimization opportunities based on workflow fit, team size, and pricing efficiency. Consider reviewing the recommended plan and tool configuration to improve productivity and reduce unnecessary spend.",
+      },
+      { status: 500 }
+    );
   }
 }
+
