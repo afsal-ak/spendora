@@ -1,8 +1,13 @@
 export enum ChatGPTPlans {
-  FREE = "free",
-  GO = "go",
+  // FREE = "free",
+  // GO = "go",
+  // PRO = "pro",
   PLUS = "plus",
-  PRO = "pro",
-  BUSINESS = "business",
+
+  TEAM = "team",
+
+  // BUSINESS = "business",
   ENTERPRISE = "enterprise",
+    API = "apiDirect",
+
 }
