@@ -1,3 +1,4 @@
+import { getPricingSnapshot } from "@/lib/getPricingSnapshot";
 import { AuditResult } from "@/types/audit";
 
 interface SaveAuditPayload {
@@ -9,8 +10,13 @@ interface SaveAuditPayload {
   selectedPlan: string;
   monthlySpend: number;
   teamSize: number;
+  useCase:string;
   result: AuditResult;
   summary: string;
+
+  pricingSnapshot: ReturnType<
+    typeof getPricingSnapshot
+  >;
 }
 export async function saveAudit(
   payload: SaveAuditPayload

@@ -8,6 +8,7 @@ interface AuditResultCardProps {
     selectedPlan: string;
     monthlySpend: number;
     teamSize: number;
+    useCase:string;
     isGeneratingSummary: boolean;
 
 }
@@ -19,6 +20,7 @@ export default function AuditResultCard({
     selectedPlan,
     monthlySpend,
     teamSize,
+    useCase,
     isGeneratingSummary,
 
 }: AuditResultCardProps) {
@@ -254,6 +256,7 @@ export default function AuditResultCard({
                     selectedPlan={selectedPlan}
                     monthlySpend={monthlySpend}
                     teamSize={teamSize}
+                    useCase={useCase}
                     isGeneratingSummary={
                         isGeneratingSummary
                     }

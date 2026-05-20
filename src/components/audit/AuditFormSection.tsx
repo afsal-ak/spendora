@@ -465,6 +465,9 @@ export default function AuditFormSection() {
               teamSize={
                 submittedData?.teamSize || 0
               }
+              useCase={
+                submittedData?.useCase||''
+              }
               isGeneratingSummary={
                 isGeneratingSummary
               }

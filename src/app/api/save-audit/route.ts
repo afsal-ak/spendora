@@ -44,6 +44,8 @@ export async function POST(
       teamSize,
       result,
       summary,
+      useCase,
+      pricingSnapshot
     } = body;
 
     const supabase = getSupabase()
@@ -60,12 +62,28 @@ export async function POST(
             plan: selectedPlan,
             monthly_spend: monthlySpend,
             team_size: teamSize,
+            usecase: useCase,
             recommended_tool: result.recommendedTool,
             recommended_plan: result.recommendedPlan,
             recommendation_type: result.recommendationType,
             estimated_savings: result.estimatedSavingsUSD,
             reason: result.reason,
             summary,
+            input_stack: {
+              selectedTool,
+              selectedPlan,
+              monthlySpend,
+              teamSize,
+              useCase,
+              companyName,
+              role,
+            },
+            output_result: {
+              result,
+              summary,
+            },
+            pricing_snapshot:
+              pricingSnapshot,
           },
         ])
         .select()
