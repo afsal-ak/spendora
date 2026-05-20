@@ -158,16 +158,53 @@ export default function AuditFormSection() {
           values.teamSize
         );
 
+
+      const isDowngradeCase =
+        (
+          values.selectedTool ===
+          "Claude" &&
+          values.selectedPlan ===
+          ClaudePlans.MAX &&
+          values.monthlySpend <
+          50
+        ) ||
+        (
+          values.selectedTool ===
+          "Gemini" &&
+          values.selectedPlan ===
+          GeminiPlans.ULTRA &&
+          values.monthlySpend <
+          100
+        ) ||
+        (
+          values.selectedTool ===
+          "ChatGPT" &&
+          values.selectedPlan ===
+          ChatGPTPlans.ENTERPRISE &&
+          values.teamSize <
+          10
+        ) ||
+        (
+          values.selectedTool ===
+          "Cursor" &&
+          values.selectedPlan ===
+          CursorPlans.BUSINESS &&
+          values.teamSize <=
+          1
+        );
+
       if (
+        !isDowngradeCase &&
         values.monthlySpend <
         minimumSpend
       ) {
         toast.error(
-          `Minimum expected spend for the selected ${values.selectedPlan} plan is approximately $${minimumSpend}/month.`
+          `Minimum expected spend for ${values.selectedPlan} is approximately $${minimumSpend}/month.`
         );
 
         return;
       }
+   
       const auditResult =
         generateAudit({
           tool: values.selectedTool,
@@ -466,7 +503,7 @@ export default function AuditFormSection() {
                 submittedData?.teamSize || 0
               }
               useCase={
-                submittedData?.useCase||''
+                submittedData?.useCase || ''
               }
               isGeneratingSummary={
                 isGeneratingSummary
