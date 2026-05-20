@@ -32,123 +32,142 @@ interface AuditResult {
     | "keep";
   reason: string;
 }
-type WorkflowRecommendation = {
+
+ type WorkflowOption = {
   tool: string;
   plan: string;
-  type:
-    | "switch"
-    | "upgrade"
-    | "downgrade";
+  priceUSD: number;
   reason: string;
 };
 
-type WorkflowRecommendations = Record<
-  string,
-  Record<
-    string,
-    WorkflowRecommendation
-  >
->;
+// WORKFLOW RECOMMENDATIONS
 
-const workflowRecommendations: WorkflowRecommendations =
-  {
-    ChatGPT: {
-      coding: {
-        tool: "Cursor",
+function getWorkflowRecommendation(
+  useCase: string
+): WorkflowOption | null {
+  let candidates:
+    WorkflowOption[] = [];
 
-        plan: CursorPlans.PRO,
+  switch (useCase) {
+    case "coding":
+      candidates = [
+        {
+          tool: "Cursor",
+          plan:
+            CursorPlans.PRO,
+          priceUSD:
+            cursorPricing.pro
+              .priceUSD,
+          reason:
+            "Cursor provides strong engineering-focused workflows.",
+        },
 
-        type: "switch",
+        {
+          tool:
+            "GitHub Copilot",
+          plan:
+            GithubCopilotPlans.PRO,
+          priceUSD:
+            githubCopilotPricing
+              .pro.priceUSD,
+          reason:
+            "GitHub Copilot provides lightweight coding assistance.",
+        },
 
-        reason:
-          "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
-      },
+        {
+          tool: "ChatGPT",
+          plan:
+            ChatGPTPlans.PLUS,
+          priceUSD:
+            chatgptPricing.plus
+              .priceUSD,
+          reason:
+            "ChatGPT works well for coding and debugging workflows.",
+        },
+      ];
+      break;
 
-      image: {
-        tool: "Gemini",
+    case "writing":
+      candidates = [
+        {
+          tool: "Claude",
+          plan:
+            ClaudePlans.PRO,
+          priceUSD:
+            claudePricing.pro
+              .priceUSD,
+          reason:
+            "Claude performs especially well for writing and long-form content.",
+        },
 
-        plan: GeminiPlans.PRO,
+        {
+          tool: "ChatGPT",
+          plan:
+            ChatGPTPlans.PLUS,
+          priceUSD:
+            chatgptPricing.plus
+              .priceUSD,
+          reason:
+            "ChatGPT works well for general writing workflows.",
+        },
+      ];
+      break;
 
-        type: "switch",
+    case "image":
+      candidates = [
+        {
+          tool: "Gemini",
+          plan:
+            GeminiPlans.PRO,
+          priceUSD:
+            geminiPricing.pro
+              .priceUSD,
+          reason:
+            "Gemini offers stronger multimodal image capabilities.",
+        },
+      ];
+      break;
 
-        reason:
-          "Gemini Pro offers stronger multimodal and image-generation capabilities.",
-      },
+    case "video":
+      candidates = [
+        {
+          tool: "Gemini",
+          plan:
+            GeminiPlans.ULTRA,
+          priceUSD:
+            geminiPricing
+              .ultra
+              .priceUSD ??
+            Infinity,
+          reason:
+            "Gemini Ultra is suited for advanced video workflows.",
+        },
+      ];
+      break;
 
-      video: {
-        tool: "Gemini",
+    default:
+      return null;
+  }
 
-        plan: GeminiPlans.ULTRA,
+  // return candidates.sort(
+  //   (a, b) =>
+  //     a.priceUSD -
+  //     b.priceUSD
+  // )[0];
+  const validCandidates =
+  candidates.filter(
+    (candidate) =>
+      typeof candidate.priceUSD ===
+      "number"
+  );
 
-        type: "upgrade",
+return validCandidates.sort(
+  (a, b) =>
+    a.priceUSD -
+    b.priceUSD
+)[0] ?? null;
 
-        reason:
-          "Gemini Ultra is better suited for advanced video-generation workflows.",
-      },
-    },
-
-    Cursor: {
-      writing: {
-        tool: "Claude",
-
-        plan: ClaudePlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Claude performs especially well for writing and long-form document workflows.",
-      },
-
-      image: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Gemini Pro offers stronger multimodal and image-generation capabilities.",
-      },
-
-      video: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.ULTRA,
-
-        type: "upgrade",
-
-        reason:
-          "Gemini Ultra is better suited for advanced video-generation workflows.",
-      },
-    },
-
-    Claude: {
-      coding: {
-        tool: "Cursor",
-
-        plan: CursorPlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
-      },
-    },
-
-    Gemini: {
-      writing: {
-        tool: "Claude",
-
-        plan: ClaudePlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Claude performs especially well for writing and long-form document workflows.",
-      },
-    },
-  };
- 
+}
 const USD_TO_INR = 85;
 
 
@@ -438,40 +457,45 @@ export function generateAudit({
     };
   }
 
-  // WORKFLOW RECOMMENDATIONS
+// WORKFLOW RECOMMENDATIONS
 
-  const toolRecommendations =
-    workflowRecommendations[
-      tool as keyof typeof workflowRecommendations
-    ];
+const recommendation =
+  getWorkflowRecommendation(
+    useCase
+  );
 
-  const workflowRecommendation =
-    toolRecommendations?.[
-      useCase as keyof typeof toolRecommendations
-    ];
+if (
+  recommendation &&
+  (
+    recommendation.tool !==
+      tool ||
+    recommendation.plan !==
+      plan
+  )
+) {
+  return {
+    recommendedTool:
+      recommendation.tool,
 
-  if (workflowRecommendation) {
-    return {
-      recommendedTool:
-        workflowRecommendation.tool,
+    recommendedPlan:
+      recommendation.plan,
 
-      recommendedPlan:
-        workflowRecommendation.plan,
+    recommendationType:
+  recommendation.tool ===
+  tool
+    ? "upgrade"
+    : "switch",
+    
+    estimatedSavingsUSD:
+      0,
 
-      recommendationType:
-        workflowRecommendation.type,
+    estimatedSavingsINR:
+      0,
 
-      estimatedSavingsUSD: 0,
-
-      estimatedSavingsINR: 0,
-
-      reason:
-        workflowRecommendation.reason,
-    };
-  }
-
-  // DEFAULT
-
+    reason:
+      recommendation.reason,
+  };
+}
   return {
     recommendedTool: tool,
 
@@ -487,4 +511,506 @@ export function generateAudit({
       "Your current setup appears reasonably aligned with your reported usage.",
   };
 }
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+// import { CursorPlans } from "@/enums/cursor";
+// import { ChatGPTPlans } from "@/enums/chatgpt";
+// import { ClaudePlans } from "@/enums/claude";
+// import { GeminiPlans } from "@/enums/gemini";
+// import { GithubCopilotPlans } from "@/enums/copilot";
+// import { WindsurfPlans } from "@/enums/Windsurf";
+
+// import { cursorPricing } from "@/data/cursor";
+// import { chatgptPricing } from "@/data/chatgpt";
+// import { claudePricing } from "@/data/claude";
+// import { geminiPricing } from "@/data/gemini";
+// import { githubCopilotPricing } from "@/data/copilot";
+// import { windsurfPricing } from "@/data/Windsurf";
+
+// interface AuditInput {
+//   tool: string;
+//   plan: string;
+//   teamSize: number;
+//   monthlySpend: number;
+//   useCase: string;
+// }
+
+// interface AuditResult {
+//   recommendedTool?: string;
+//   recommendedPlan: string;
+//   estimatedSavingsUSD: number;
+//   estimatedSavingsINR: number;
+//   recommendationType:
+//     | "upgrade"
+//     | "downgrade"
+//     | "switch"
+//     | "keep";
+//   reason: string;
+// }
+// type WorkflowRecommendation = {
+//   tool: string;
+//   plan: string;
+//   type:
+//     | "switch"
+//     | "upgrade"
+//     | "downgrade";
+//   reason: string;
+// };
+
+// type WorkflowRecommendations = Record<
+//   string,
+//   Record<
+//     string,
+//     WorkflowRecommendation
+//   >
+// >;
+
+// const workflowRecommendations: WorkflowRecommendations =
+//   {
+//     ChatGPT: {
+//       coding: {
+//         tool: "Cursor",
+
+//         plan: CursorPlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
+//       },
+
+//       image: {
+//         tool: "Gemini",
+
+//         plan: GeminiPlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Gemini Pro offers stronger multimodal and image-generation capabilities.",
+//       },
+
+//       video: {
+//         tool: "Gemini",
+
+//         plan: GeminiPlans.ULTRA,
+
+//         type: "upgrade",
+
+//         reason:
+//           "Gemini Ultra is better suited for advanced video-generation workflows.",
+//       },
+//     },
+
+//     Cursor: {
+//       writing: {
+//         tool: "Claude",
+
+//         plan: ClaudePlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Claude performs especially well for writing and long-form document workflows.",
+//       },
+
+//       image: {
+//         tool: "Gemini",
+
+//         plan: GeminiPlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Gemini Pro offers stronger multimodal and image-generation capabilities.",
+//       },
+
+//       video: {
+//         tool: "Gemini",
+
+//         plan: GeminiPlans.ULTRA,
+
+//         type: "upgrade",
+
+//         reason:
+//           "Gemini Ultra is better suited for advanced video-generation workflows.",
+//       },
+//     },
+
+//     Claude: {
+//       coding: {
+//         tool: "Cursor",
+
+//         plan: CursorPlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
+//       },
+//     },
+
+//     Gemini: {
+//       writing: {
+//         tool: "Claude",
+
+//         plan: ClaudePlans.PRO,
+
+//         type: "switch",
+
+//         reason:
+//           "Claude performs especially well for writing and long-form document workflows.",
+//       },
+//     },
+//   };
+ 
+// const USD_TO_INR = 85;
+
+
+// export function generateAudit({
+//   tool,
+//   plan,
+//   teamSize,
+//   monthlySpend,
+//   useCase,
+// }: AuditInput): AuditResult {
+//   // CHATGPT RULES
+
+//   if (
+//     tool === "ChatGPT" &&
+//     plan === ChatGPTPlans.BUSINESS &&
+//     teamSize <= 1
+//   ) {
+//     const currentPrice =
+//       chatgptPricing.business.priceUSD;
+
+//     const recommendedPrice =
+//       chatgptPricing.plus.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "ChatGPT",
+
+//       recommendedPlan:
+//         ChatGPTPlans.PLUS,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "ChatGPT Business is usually unnecessary for solo users.",
+//     };
+//   }
+
+//   if (
+//     tool === "ChatGPT" &&
+//     plan === ChatGPTPlans.ENTERPRISE &&
+//     teamSize < 10
+//   ) {
+//     const recommendedPrice =
+//       chatgptPricing.business.priceUSD;
+
+//     return {
+//       recommendedTool: "ChatGPT",
+
+//       recommendedPlan:
+//         ChatGPTPlans.BUSINESS,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         recommendedPrice,
+
+//       estimatedSavingsINR:
+//         recommendedPrice * USD_TO_INR,
+
+//       reason:
+//         "Enterprise plans are generally more suitable for larger organizations.",
+//     };
+//   }
+
+//   // CLAUDE RULES
+
+//   if (
+//     tool === "Claude" &&
+//     plan === ClaudePlans.MAX &&
+//     monthlySpend < 50
+//   ) {
+//     const currentPrice =
+//       claudePricing.max.priceUSD;
+
+//     const recommendedPrice =
+//       claudePricing.pro.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "Claude",
+
+//       recommendedPlan:
+//         ClaudePlans.PRO,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Claude Max may be excessive for moderate usage levels.",
+//     };
+//   }
+
+//   if (
+//     tool === "Claude" &&
+//     plan === ClaudePlans.TEAM &&
+//     teamSize < 5
+//   ) {
+//     const currentPrice =
+//       claudePricing.team.priceUSD;
+
+//     const recommendedPrice =
+//       claudePricing.pro.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "Claude",
+
+//       recommendedPlan:
+//         ClaudePlans.PRO,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Claude Team is more appropriate for collaborative teams.",
+//     };
+//   }
+
+//   // GEMINI RULES
+
+//   if (
+//     tool === "Gemini" &&
+//     plan === GeminiPlans.ULTRA &&
+//     monthlySpend < 100
+//   ) {
+//     const currentPrice =
+//       geminiPricing.ultra.priceUSD;
+
+//     const recommendedPrice =
+//       geminiPricing.pro.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "Gemini",
+
+//       recommendedPlan:
+//         GeminiPlans.PRO,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Gemini Ultra is typically intended for advanced AI power users.",
+//     };
+//   }
+
+//   // CURSOR RULES
+
+//   if (
+//     tool === "Cursor" &&
+//     plan === CursorPlans.BUSINESS &&
+//     teamSize <= 1
+//   ) {
+//     const currentPrice =
+//       cursorPricing.business.priceUSD;
+
+//     const recommendedPrice =
+//       cursorPricing.pro.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "Cursor",
+
+//       recommendedPlan:
+//         CursorPlans.PRO,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Cursor Business is more suitable for collaborative engineering teams.",
+//     };
+//   }
+
+//   // GITHUB COPILOT RULES
+
+//   if (
+//     tool === "GitHub Copilot" &&
+//     plan === GithubCopilotPlans.ENTERPRISE &&
+//     teamSize < 10
+//   ) {
+//     const currentPrice =
+//       githubCopilotPricing.enterprise.priceUSD;
+
+//     const recommendedPrice =
+//       githubCopilotPricing.business.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool:
+//         "GitHub Copilot",
+
+//       recommendedPlan:
+//         GithubCopilotPlans.BUSINESS,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Enterprise plans are often unnecessary for smaller engineering organizations.",
+//     };
+//   }
+
+//   // WINDSURF RULES
+
+//   if (
+//     tool === "Windsurf" &&
+//     plan === WindsurfPlans.TEAMS &&
+//     teamSize <= 1
+//   ) {
+//     const currentPrice =
+//       windsurfPricing.teams.priceUSD;
+
+//     const recommendedPrice =
+//       windsurfPricing.pro.priceUSD;
+
+//     const savings =
+//       currentPrice - recommendedPrice;
+
+//     return {
+//       recommendedTool: "Windsurf",
+
+//       recommendedPlan:
+//         WindsurfPlans.PRO,
+
+//       recommendationType:
+//         "downgrade",
+
+//       estimatedSavingsUSD:
+//         savings,
+
+//       estimatedSavingsINR:
+//         savings * USD_TO_INR,
+
+//       reason:
+//         "Windsurf Teams is primarily designed for collaborative development teams.",
+//     };
+//   }
+
+//   // WORKFLOW RECOMMENDATIONS
+
+//   const toolRecommendations =
+//     workflowRecommendations[
+//       tool as keyof typeof workflowRecommendations
+//     ];
+
+//   const workflowRecommendation =
+//     toolRecommendations?.[
+//       useCase as keyof typeof toolRecommendations
+//     ];
+
+//   if (workflowRecommendation) {
+//     return {
+//       recommendedTool:
+//         workflowRecommendation.tool,
+
+//       recommendedPlan:
+//         workflowRecommendation.plan,
+
+//       recommendationType:
+//         workflowRecommendation.type,
+
+//       estimatedSavingsUSD: 0,
+
+//       estimatedSavingsINR: 0,
+
+//       reason:
+//         workflowRecommendation.reason,
+//     };
+//   }
+
+//   // DEFAULT
+
+//   return {
+//     recommendedTool: tool,
+
+//     recommendedPlan: plan,
+
+//     recommendationType: "keep",
+
+//     estimatedSavingsUSD: 0,
+
+//     estimatedSavingsINR: 0,
+
+//     reason:
+//       "Your current setup appears reasonably aligned with your reported usage.",
+//   };
+// }
  
