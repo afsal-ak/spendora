@@ -44,3 +44,16 @@ Slept 02:00–08:00. Chose to continue fresh instead of pushing through exhauste
 ## 2026-05-21 08:20 - Back to implementation
 
 Reviewed remaining work after sleep. Prioritizing notification emails first because it completes the end-to-end user flow before starting the diff view.
+
+
+
+## 2026-05-21 10:30 - Started notification email implementation
+
+Decided to reuse existing Round 1 Resend integration instead of introducing a new provider to reduce implementation risk within the 36-hour window.
+
+Starting with a consolidated email flow so users with multiple affected audits receive a single notification rather than multiple emails.
+
+Planned email content:
+- recommendation change summary
+- re-run audit link
+- previous vs updated recommendation
