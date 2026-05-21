@@ -76,11 +76,54 @@ export async function POST() {
         audit.output_result
           .result;
 
+
       const recommendationChanged =
         !isEqual(
           oldResult,
           newResult
         );
+
+      const oldTool =
+        oldResult
+          ?.recommendedTool ?? "";
+
+      const oldPlan =
+        oldResult
+          ?.recommendedPlan ?? "";
+
+      const newTool =
+        newResult
+          ?.recommendedTool ?? "";
+
+      const newPlan =
+        newResult
+          ?.recommendedPlan ?? "";
+
+      // OLD pricing snapshot
+      const oldToolPrice =
+        (
+          audit.pricing_snapshot as Record<
+            string,
+            any
+          >
+        )?.[
+          oldTool
+        ]?.[
+          oldPlan
+        ]?.priceUSD ?? 0;
+
+      // NEW pricing
+      const newToolPrice =
+        (
+          latestPricing as Record<
+            string,
+            any
+          >
+        )?.[
+          newTool
+        ]?.[
+          newPlan
+        ]?.priceUSD ?? 0;
 
       const auditAffected =
         pricingChanged;
@@ -89,14 +132,113 @@ export async function POST() {
         continue;
       }
 
+      const oldToolExists =
+        !!(
+          (
+            latestPricing as Record<
+              string,
+              any
+            >
+          )?.[oldTool]
+          ?.[oldPlan]
+        );
+
+      const oldPricingSnapshot =
+        audit.pricing_snapshot as Record<
+          string,
+          any
+        >;
+
+      const modelExistedBefore =
+        !!oldPricingSnapshot?.[
+        newTool
+        ]?.[
+        newPlan
+        ];
+
+      const newModelAdded =
+        !modelExistedBefore &&
+        !!newTool &&
+        !!newPlan;
+
+      // SAVE FULL DATA FOR RERUN
       const {
-        error:
-        updateError,
+        error: updateError,
       } = await supabase
         .from("audits")
         .update({
-          re_audit_result:
-            newResult,
+          re_audit_result: {
+            result: newResult,
+
+            currentSetup: {
+              tool:
+                input.selectedTool,
+
+              plan:
+                input.selectedPlan,
+
+              monthlySpend:
+                input.monthlySpend,
+
+              teamSize:
+                input.teamSize,
+
+              useCase:
+                input.useCase,
+            },
+
+            comparison: {
+              previous: {
+                tool:
+                  oldTool,
+
+                plan:
+                  oldPlan,
+
+                reason:
+                  oldResult.reason,
+
+                savings:
+                  oldResult
+                    .estimatedSavingsUSD,
+
+                monthlyCost:
+                  oldToolPrice,
+              },
+
+              updated: {
+                tool:
+                  newTool,
+
+                plan:
+                  newPlan,
+
+                reason:
+                  newResult.reason,
+
+                savings:
+                  newResult
+                    .estimatedSavingsUSD,
+
+                monthlyCost:
+                  newToolPrice,
+              },
+
+              priceChange: {
+                oldPrice:
+                  oldToolPrice,
+
+                newPrice:
+                  newToolPrice,
+              },
+
+              delta: {
+                monthlySavings:
+                  oldToolPrice -
+                  newToolPrice,
+              },
+            },
+          },
 
           re_audited_at:
             new Date().toISOString(),
@@ -115,87 +257,7 @@ export async function POST() {
         continue;
       }
 
-      const oldTool =
-        oldResult
-          .recommendedTool ??
-        "";
 
-      const oldPlan =
-        oldResult
-          .recommendedPlan ??
-        "";
-
-      const newTool =
-        newResult
-          .recommendedTool ??
-        "";
-
-      const newPlan =
-        newResult
-          .recommendedPlan ??
-        "";
-
-      // get OLD price from saved snapshot
-      const oldToolPrice =
-        (
-          audit.pricing_snapshot as Record<
-            string,
-            any
-          >
-        )?.[
-          oldTool
-        ]?.[
-          oldPlan
-        ]?.priceUSD ?? 0;
-
-      // get NEW price from latest pricing
-      const newToolPrice =
-        (
-          latestPricing as Record<
-            string,
-            any
-          >
-        )?.[
-          newTool
-        ]?.[
-          newPlan
-        ]?.priceUSD ?? 0;
-      const oldToolExists =
-        !!(
-          (
-            latestPricing as Record<
-              string,
-              any
-            >
-          )?.[oldTool]
-          ?.[oldPlan]
-        );
-
-      // const newModelAdded =
-      //   oldTool !==
-      //     newTool ||
-      //   oldPlan !==
-      //     newPlan;
-      const oldPricingSnapshot =
-        audit.pricing_snapshot as Record<
-          string,
-          any
-        >;
-
-      const modelExistedBefore =
-        !!oldPricingSnapshot?.[
-        newTool
-        ]?.[
-        newPlan
-        ];
-
-      // true only if
-      // new recommendation
-      // did NOT exist before
-      const newModelAdded =
-        !modelExistedBefore &&
-        !!newTool &&
-        !!newPlan;
       affectedAudits.push({
         auditId:
           audit.id,
@@ -259,20 +321,6 @@ export async function POST() {
           audit
             .pricing_snapshot,
 
-        //   oldMonthlyCost:
-        //     oldToolPrice,
-
-        //   newMonthlyCost:
-        //     newToolPrice,
-
-        //   monthlySavings:
-        //     oldToolPrice -
-        //     newToolPrice,
-        //     oldToolPrice:
-        //   oldToolPrice,
-
-        // newToolPrice:
-        //   newToolPrice,
         oldMonthlyCost:
           oldToolPrice,
 
@@ -435,7 +483,7 @@ export async function POST() {
 // import { getSupabase } from "@/lib/getSupabase";
 // import { getPricingSnapshot } from "@/lib/getPricingSnapshot";
 // import { generateAudit } from "@/lib/audit-engine";
-// import { sendReauditEmail } from "@/lib/sendReauditEmail";
+// import { sendReauditEmail } from "@/lib/sendReauditEmail"; // add this
 
 // import isEqual from "lodash/isEqual";
 
@@ -444,7 +492,6 @@ export async function POST() {
 //     const supabase =
 //       getSupabase();
 
-//     // fetch all audits
 //     const {
 //       data: audits,
 //       error,
@@ -472,7 +519,6 @@ export async function POST() {
 //       [];
 
 //     for (const audit of audits) {
-//       // skip incomplete audits
 //       if (
 //         !audit.pricing_snapshot ||
 //         !audit.input_stack ||
@@ -481,14 +527,12 @@ export async function POST() {
 //         continue;
 //       }
 
-//       // check pricing change
 //       const pricingChanged =
 //         !isEqual(
 //           audit.pricing_snapshot,
 //           latestPricing
 //         );
 
-//       // no pricing change
 //       if (!pricingChanged) {
 //         continue;
 //       }
@@ -496,21 +540,16 @@ export async function POST() {
 //       const input =
 //         audit.input_stack;
 
-//       // re-run audit
 //       const newResult =
 //         generateAudit({
 //           tool:
 //             input.selectedTool,
-
 //           plan:
 //             input.selectedPlan,
-
 //           monthlySpend:
 //             input.monthlySpend,
-
 //           teamSize:
 //             input.teamSize,
-
 //           useCase:
 //             input.useCase,
 //         });
@@ -519,29 +558,22 @@ export async function POST() {
 //         audit.output_result
 //           .result;
 
-//       // compare recommendation
 //       const recommendationChanged =
 //         !isEqual(
 //           oldResult,
 //           newResult
 //         );
 
-//       // affected if:
-//       // pricing changed
-//       // OR recommendation changed
 //       const auditAffected =
-//         pricingChanged
-//         // ||
-//         // recommendationChanged;
+//         pricingChanged;
 
 //       if (!auditAffected) {
 //         continue;
 //       }
 
-//       // save re-audit
 //       const {
 //         error:
-//           updateError,
+//         updateError,
 //       } = await supabase
 //         .from("audits")
 //         .update({
@@ -565,6 +597,87 @@ export async function POST() {
 //         continue;
 //       }
 
+//       const oldTool =
+//         oldResult
+//           .recommendedTool ??
+//         "";
+
+//       const oldPlan =
+//         oldResult
+//           .recommendedPlan ??
+//         "";
+
+//       const newTool =
+//         newResult
+//           .recommendedTool ??
+//         "";
+
+//       const newPlan =
+//         newResult
+//           .recommendedPlan ??
+//         "";
+
+//       // get OLD price from saved snapshot
+//       const oldToolPrice =
+//         (
+//           audit.pricing_snapshot as Record<
+//             string,
+//             any
+//           >
+//         )?.[
+//           oldTool
+//         ]?.[
+//           oldPlan
+//         ]?.priceUSD ?? 0;
+
+//       // get NEW price from latest pricing
+//       const newToolPrice =
+//         (
+//           latestPricing as Record<
+//             string,
+//             any
+//           >
+//         )?.[
+//           newTool
+//         ]?.[
+//           newPlan
+//         ]?.priceUSD ?? 0;
+//       const oldToolExists =
+//         !!(
+//           (
+//             latestPricing as Record<
+//               string,
+//               any
+//             >
+//           )?.[oldTool]
+//           ?.[oldPlan]
+//         );
+
+//       // const newModelAdded =
+//       //   oldTool !==
+//       //     newTool ||
+//       //   oldPlan !==
+//       //     newPlan;
+//       const oldPricingSnapshot =
+//         audit.pricing_snapshot as Record<
+//           string,
+//           any
+//         >;
+
+//       const modelExistedBefore =
+//         !!oldPricingSnapshot?.[
+//         newTool
+//         ]?.[
+//         newPlan
+//         ];
+
+//       // true only if
+//       // new recommendation
+//       // did NOT exist before
+//       const newModelAdded =
+//         !modelExistedBefore &&
+//         !!newTool &&
+//         !!newPlan;
 //       affectedAudits.push({
 //         auditId:
 //           audit.id,
@@ -576,28 +689,193 @@ export async function POST() {
 
 //         recommendationChanged,
 
+//         tool:
+//           audit.tool,
+
+//         plan:
+//           audit.plan,
+
+//         useCase:
+//           audit.usecase,
+
 //         oldRecommendation:
-//           {
-//             tool:
-//               oldResult
-//                 .recommendedTool,
-//             plan:
-//               oldResult
-//                 .recommendedPlan,
-//           },
+//         {
+//           tool:
+//             oldResult
+//               .recommendedTool,
+
+//           plan:
+//             oldResult
+//               .recommendedPlan,
+//         },
 
 //         newRecommendation:
-//           {
-//             tool:
-//               newResult
-//                 .recommendedTool,
-//             plan:
-//               newResult
-//                 .recommendedPlan,
-//           },
+//         {
+//           tool:
+//             newResult
+//               .recommendedTool,
+
+//           plan:
+//             newResult
+//               .recommendedPlan,
+//         },
+
+//         oldSavings:
+//           oldResult
+//             .estimatedSavingsUSD,
+
+//         newSavings:
+//           newResult
+//             .estimatedSavingsUSD,
+
+//         oldReason:
+//           oldResult.reason,
+
+//         newReason:
+//           newResult.reason,
+
+//         oldSummary:
+//           audit.summary,
+
+//         pricingSnapshot:
+//           audit
+//             .pricing_snapshot,
+
+//         oldMonthlyCost:
+//           oldToolPrice,
+
+//         newMonthlyCost:
+//           newToolPrice,
+
+//         monthlySavings:
+//           oldToolPrice -
+//           newToolPrice,
+
+//         oldToolPrice:
+//           oldToolPrice,
+
+//         newToolPrice:
+//           newToolPrice,
+
+//         modelRemoved:
+//           !oldToolExists,
+
+//         newModelAdded:
+//           newModelAdded,
 //       });
+
+
 //     }
 
+
+//     // ==========================
+//     // SEND CONSOLIDATED EMAILS
+//     // ==========================
+
+//     const groupedUsers =
+//       affectedAudits.reduce(
+//         (acc, audit) => {
+//           if (
+//             !acc[audit.email]
+//           ) {
+//             acc[
+//               audit.email
+//             ] = [];
+//           }
+
+//           acc[
+//             audit.email
+//           ].push(audit);
+
+//           return acc;
+//         },
+//         {} as Record<
+//           string,
+//           typeof affectedAudits
+//         >
+//       );
+
+//     for (const [
+//       email,
+//       audits,
+//     ] of Object.entries(
+//       groupedUsers
+//     )) {
+//       // send only if recommendation changed
+//       const shouldSendEmail =
+//         audits.some(
+//           (audit) =>
+//             audit
+//               .oldRecommendation
+//               .tool !==
+//             audit
+//               .newRecommendation
+//               .tool ||
+//             audit
+//               .oldRecommendation
+//               .plan !==
+//             audit
+//               .newRecommendation
+//               .plan
+//         );
+
+//       if (
+//         !shouldSendEmail
+//       ) {
+//         console.log(
+//           `Skipping email for ${email} - recommendation unchanged`
+//         );
+
+//         continue;
+//       }
+
+//       try {
+//         // await sendReauditEmail({
+//         //   email,
+//         //   affectedAudits:
+//         //     audits,
+//         // });
+//         const changedAudits =
+//           audits.filter(
+//             (audit) =>
+//               audit
+//                 .oldRecommendation
+//                 .tool !==
+//               audit
+//                 .newRecommendation
+//                 .tool ||
+//               audit
+//                 .oldRecommendation
+//                 .plan !==
+//               audit
+//                 .newRecommendation
+//                 .plan
+//           );
+
+//         if (
+//           changedAudits.length ===
+//           0
+//         ) {
+//           continue;
+//         }
+
+//         await sendReauditEmail({
+//           email,
+//           affectedAudits:
+//             changedAudits,
+//         });
+//         console.log(
+//           `Reaudit email sent to ${email}`
+//         );
+//       } catch (
+//       emailError
+//       ) {
+//         console.error(
+//           `Failed sending email to ${email}`,
+//           emailError
+//         );
+//       }
+//     }
 //     return Response.json({
 //       success: true,
 //       totalAudits:

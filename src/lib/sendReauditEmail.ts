@@ -293,28 +293,27 @@ ${audit.newModelAdded
           "-"
           }
         </p>
-
-        <a
-          href="${process.env
-            .NEXT_PUBLIC_APP_URL
-          }/audit/${audit.auditId
-          }?reaudit=true"
-          style="
-            background:#000;
-            color:#fff;
-            padding:10px 16px;
-            border-radius:6px;
-            text-decoration:none;
-            display:inline-block;
-            margin-top:12px;
-          "
-        >
-          Compare Old vs New Audit
-        </a>
-      </div>
-    `
-      )
-      .join("");
+          <a
+            href="${process.env
+                      .NEXT_PUBLIC_APP_URL
+                    }/audit/re-run/${audit.auditId}"
+            style="
+              background:#000;
+              color:#fff;
+              padding:10px 16px;
+              border-radius:6px;
+              text-decoration:none;
+              display:inline-block;
+              margin-top:12px;
+            "
+          >
+            Compare Old vs New Audit
+          </a>
+                  
+                </div>
+              `
+                )
+                .join("");
 
   return resend.emails.send({
     from:

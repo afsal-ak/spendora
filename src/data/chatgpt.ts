@@ -1,7 +1,9 @@
 export const chatgptPricing = {
   
   plus: {
-    priceUSD: 20,
+    // priceUSD: 20,
+        priceUSD: 10,
+
     priceINR: 1999,
     bestFor: "individual professionals",
 
