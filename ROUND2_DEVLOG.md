@@ -57,3 +57,17 @@ Planned email content:
 - recommendation change summary
 - re-run audit link
 - previous vs updated recommendation
+
+
+## 2026-05-21 13:40 - Completed notification email flow (~3h 05m)
+
+Finished the required notification email system for affected audits using Resend. Implemented consolidated per-user emails to avoid sending multiple notifications when several audits are impacted by the same pricing change.
+
+Added pricing impact details (old vs updated recommendation, pricing differences, estimated cost impact, recommendation reason, and re-run link). Also handled edge cases around pricing-only changes, unchanged recommendations, removed plans, and newly introduced plans/models affecting recommendations.
+
+Tested multiple scenarios including:
+- recommendation changes from pricing updates
+- same-user multiple affected audits (single email)
+- unchanged recommendation skip logic
+- new plan/model availability affecting recommendations
+- removed plan 
