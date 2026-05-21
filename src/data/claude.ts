@@ -13,6 +13,7 @@ export const claudePricing = {
 
   pro: {
     priceUSD: 20,
+    // priceUSD: 50,
     priceINR: 1700,
     bestFor: "individual professionals",
 

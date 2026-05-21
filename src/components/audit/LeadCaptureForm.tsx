@@ -12,6 +12,7 @@ import {
 } from "@/schemas/lead-capture.schema";
 import { saveAudit } from "@/services/audit.service";
 import { AuditResult } from "@/types/audit";
+import { getPricingSnapshot } from "@/lib/getPricingSnapshot";
 
 
 interface LeadCaptureFormProps {
@@ -21,6 +22,7 @@ interface LeadCaptureFormProps {
   selectedPlan: string;
   monthlySpend: number;
   teamSize: number;
+  useCase: string;
   isGeneratingSummary: boolean;
 }
 export default function LeadCaptureForm({
@@ -30,6 +32,7 @@ export default function LeadCaptureForm({
   selectedPlan,
   monthlySpend,
   teamSize,
+  useCase,
   isGeneratingSummary
 
 }: LeadCaptureFormProps) {
@@ -60,6 +63,8 @@ export default function LeadCaptureForm({
     try {
       setIsLoading(true);
 
+      //current pricing
+      const pricingSnapshot =  getPricingSnapshot();
       const data = await saveAudit({
         ...values,
         selectedTool,
@@ -67,7 +72,9 @@ export default function LeadCaptureForm({
         monthlySpend,
         teamSize,
         result,
+        useCase,
         summary,
+        pricingSnapshot,
       });
 
       if (data.success) {

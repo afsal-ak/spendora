@@ -32,123 +32,153 @@ interface AuditResult {
     | "keep";
   reason: string;
 }
-type WorkflowRecommendation = {
+
+ type WorkflowOption = {
   tool: string;
   plan: string;
-  type:
-    | "switch"
-    | "upgrade"
-    | "downgrade";
+  priceUSD: number;
   reason: string;
 };
 
-type WorkflowRecommendations = Record<
-  string,
-  Record<
-    string,
-    WorkflowRecommendation
-  >
->;
+// WORKFLOW RECOMMENDATIONS
 
-const workflowRecommendations: WorkflowRecommendations =
-  {
-    ChatGPT: {
-      coding: {
-        tool: "Cursor",
+function getWorkflowRecommendation(
+  useCase: string
+): WorkflowOption | null {
+  let candidates:
+    WorkflowOption[] = [];
 
-        plan: CursorPlans.PRO,
+  switch (useCase) {
+    case "coding":
+      candidates = [
+        {
+          tool: "Cursor",
+          plan:
+            CursorPlans.PRO,
+          priceUSD:
+            cursorPricing.pro
+              .priceUSD,
+          reason:
+            "Cursor provides strong engineering-focused workflows.",
+        },
 
-        type: "switch",
+        {
+          tool:
+            "GitHub Copilot",
+          plan:
+            GithubCopilotPlans.PRO,
+          priceUSD:
+            githubCopilotPricing
+              .pro.priceUSD,
+          reason:
+            "GitHub Copilot provides lightweight coding assistance.",
+        },
 
-        reason:
-          "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
-      },
+        {
+          tool: "ChatGPT",
+          plan:
+            ChatGPTPlans.PLUS,
+          priceUSD:
+            chatgptPricing.plus
+              .priceUSD,
+          reason:
+            "ChatGPT works well for coding and debugging workflows.",
+        },
+        
+      ];
+      break;
 
-      image: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Gemini Pro offers stronger multimodal and image-generation capabilities.",
-      },
-
-      video: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.ULTRA,
-
-        type: "upgrade",
-
-        reason:
-          "Gemini Ultra is better suited for advanced video-generation workflows.",
-      },
+   
+case "writing":
+  candidates = [
+    {
+      tool: "Claude",
+      plan:
+        ClaudePlans.PRO,
+      priceUSD:
+        claudePricing.pro
+          .priceUSD,
+      reason:
+        "Claude performs especially well for writing and long-form content.",
     },
 
-    Cursor: {
-      writing: {
-        tool: "Claude",
-
-        plan: ClaudePlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Claude performs especially well for writing and long-form document workflows.",
-      },
-
-      image: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.PRO,
-
-        type: "switch",
-
-        reason:
-          "Gemini Pro offers stronger multimodal and image-generation capabilities.",
-      },
-
-      video: {
-        tool: "Gemini",
-
-        plan: GeminiPlans.ULTRA,
-
-        type: "upgrade",
-
-        reason:
-          "Gemini Ultra is better suited for advanced video-generation workflows.",
-      },
+    {
+      tool: "ChatGPT",
+      plan:
+        ChatGPTPlans.PLUS,
+      priceUSD:
+        chatgptPricing.plus
+          .priceUSD,
+      reason:
+        "ChatGPT works well for general writing workflows.",
     },
 
-    Claude: {
-      coding: {
-        tool: "Cursor",
 
-        plan: CursorPlans.PRO,
+    // //new model added now for testing reaudit work successfully
+    // {
+    //   tool: "ChatGPT",
+    //   plan:
+    //     ChatGPTPlans.MAX,
+    //   priceUSD:
+    //     chatgptPricing.max
+    //       .priceUSD,
+    //   reason:
+    //     "ChatGPT Max provides stronger value for writing workflows.",
+    // },
+  ];
 
-        type: "switch",
+  break;
+    case "image":
+      candidates = [
+        {
+          tool: "Gemini",
+          plan:
+            GeminiPlans.PRO,
+          priceUSD:
+            geminiPricing.pro
+              .priceUSD,
+          reason:
+            "Gemini offers stronger multimodal image capabilities.",
+        },
+      ];
+      break;
 
-        reason:
-          "Cursor provides stronger engineering-focused workflows and codebase-aware assistance.",
-      },
-    },
+    case "video":
+      candidates = [
+        {
+          tool: "Gemini",
+          plan:
+            GeminiPlans.ULTRA,
+          priceUSD:
+            geminiPricing
+              .ultra
+              .priceUSD ??
+            Infinity,
+          reason:
+            "Gemini Ultra is suited for advanced video workflows.",
+        },
+      ];
+      break;
 
-    Gemini: {
-      writing: {
-        tool: "Claude",
+    default:
+      return null;
+  }
 
-        plan: ClaudePlans.PRO,
+  
+  const validCandidates =
+  candidates.filter(
+    (candidate) =>
+      typeof candidate.priceUSD ===
+      "number"
+  );
 
-        type: "switch",
+return validCandidates.sort(
+  (a, b) =>
+    a.priceUSD -
+    b.priceUSD
+)[0] ?? null;
 
-        reason:
-          "Claude performs especially well for writing and long-form document workflows.",
-      },
-    },
-  };
- 
+}
 const USD_TO_INR = 85;
 
 
@@ -438,40 +468,45 @@ export function generateAudit({
     };
   }
 
-  // WORKFLOW RECOMMENDATIONS
+// WORKFLOW RECOMMENDATIONS
 
-  const toolRecommendations =
-    workflowRecommendations[
-      tool as keyof typeof workflowRecommendations
-    ];
+const recommendation =
+  getWorkflowRecommendation(
+    useCase
+  );
 
-  const workflowRecommendation =
-    toolRecommendations?.[
-      useCase as keyof typeof toolRecommendations
-    ];
+if (
+  recommendation &&
+  (
+    recommendation.tool !==
+      tool ||
+    recommendation.plan !==
+      plan
+  )
+) {
+  return {
+    recommendedTool:
+      recommendation.tool,
 
-  if (workflowRecommendation) {
-    return {
-      recommendedTool:
-        workflowRecommendation.tool,
+    recommendedPlan:
+      recommendation.plan,
 
-      recommendedPlan:
-        workflowRecommendation.plan,
+    recommendationType:
+  recommendation.tool ===
+  tool
+    ? "upgrade"
+    : "switch",
+    
+    estimatedSavingsUSD:
+      0,
 
-      recommendationType:
-        workflowRecommendation.type,
+    estimatedSavingsINR:
+      0,
 
-      estimatedSavingsUSD: 0,
-
-      estimatedSavingsINR: 0,
-
-      reason:
-        workflowRecommendation.reason,
-    };
-  }
-
-  // DEFAULT
-
+    reason:
+      recommendation.reason,
+  };
+}
   return {
     recommendedTool: tool,
 
