@@ -84,3 +84,19 @@ Planned focus:
 - recommendation comparison logic
 - savings delta calculation
 - side-by-side diff view
+
+## 2026-05-21 19:00 - Completed re-audit diff view
+
+Completed the final Round 2 feature: re-audit comparison view. Implemented a re-run flow allowing users to compare previous recommendations with updated recommendations after pricing changes.
+
+Implemented:
+- re-audit API endpoint
+- recommendation comparison logic
+- monthly savings calculation
+- pricing impact breakdown
+- side-by-side comparison UI
+- re-audit result storage
+- re-audit email link integration
+
+Final flow:
+pricing change detection → re-audit → save updated result → send email → compare previous vs updated recommendation
