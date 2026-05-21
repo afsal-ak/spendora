@@ -7,12 +7,45 @@ interface Props {
         id: string;
     }>;
 }
+interface ReAuditResponse {
+  success: boolean;
+
+  currentSetup: {
+    monthlySpend: number;
+    teamSize: number;
+    useCase: string;
+  };
+
+  previousAudit: {
+    recommendedTool: string;
+    recommendedPlan: string;
+    monthlyCost: number;
+    reason: string;
+  };
+
+  updatedAudit: {
+    recommendedTool: string;
+    recommendedPlan: string;
+    monthlyCost: number;
+    reason: string;
+  };
+
+  pricingImpact: {
+    oldPrice: number;
+    newPrice: number;
+    monthlySavings: number;
+  };
+
+  diff: {
+    recommendationChanged: boolean;
+  };
+}
 
 export default function ReRunPage({
     params,
 }: Props) {
     const [data, setData] =
-        useState<any>(null);
+        useState<ReAuditResponse>();
 
     const [loading, setLoading] =
         useState(true);
@@ -59,7 +92,7 @@ export default function ReRunPage({
         updatedAudit,
         pricingImpact,
         diff,
-        meta,
+        
     } = data;
 
     return (

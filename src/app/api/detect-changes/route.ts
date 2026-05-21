@@ -5,6 +5,21 @@ import { sendReauditEmail } from "@/lib/sendReauditEmail"; // add this
 
 import isEqual from "lodash/isEqual";
 
+type PricingSnapshot = Record<
+  string,
+  Record<
+    string,
+    {
+      priceUSD?:
+        | number
+        | null;
+
+      [key: string]:
+        unknown;
+    }
+  >
+>;
+
 export async function POST() {
   try {
     const supabase =
@@ -102,10 +117,8 @@ export async function POST() {
       // OLD pricing snapshot
       const oldToolPrice =
         (
-          audit.pricing_snapshot as Record<
-            string,
-            any
-          >
+         audit.pricing_snapshot as PricingSnapshot
+          
         )?.[
           oldTool
         ]?.[
@@ -115,10 +128,7 @@ export async function POST() {
       // NEW pricing
       const newToolPrice =
         (
-          latestPricing as Record<
-            string,
-            any
-          >
+         latestPricing as PricingSnapshot
         )?.[
           newTool
         ]?.[
@@ -135,19 +145,13 @@ export async function POST() {
       const oldToolExists =
         !!(
           (
-            latestPricing as Record<
-              string,
-              any
-            >
+            latestPricing as PricingSnapshot
           )?.[oldTool]
           ?.[oldPlan]
         );
 
       const oldPricingSnapshot =
-        audit.pricing_snapshot as Record<
-          string,
-          any
-        >;
+        audit.pricing_snapshot as PricingSnapshot
 
       const modelExistedBefore =
         !!oldPricingSnapshot?.[
