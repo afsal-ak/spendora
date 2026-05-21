@@ -2,7 +2,7 @@ import { claudePricing } from "@/data/claude";
 import { githubCopilotPricing } from "@/data/copilot";
 import { cursorPricing } from "@/data/cursor";
 import { geminiPricing } from "@/data/gemini";
-import { chatgptPricing } from "@/data/pricing";
+import { chatgptPricing } from "@/data/chatgpt";
 import { windsurfPricing } from "@/data/Windsurf";
 
 type PricingPlan = {

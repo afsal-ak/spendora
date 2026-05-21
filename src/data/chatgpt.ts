@@ -1,4 +1,5 @@
 export const chatgptPricing = {
+  
   plus: {
     priceUSD: 20,
     priceINR: 1999,
@@ -42,6 +43,22 @@ export const chatgptPricing = {
       "enterprise",
     ],
   },
+
+
+  // //new plan for testing
+  // max: {
+  //   priceUSD: 5,
+  //   priceINR: 999,
+  //   bestFor:
+  //     "best-value users",
+
+  //   supportedUseCases: [
+  //     "coding",
+  //     "writing",
+  //     "research",
+  //     "mixed",
+  //   ],
+  // },
 
  
 };

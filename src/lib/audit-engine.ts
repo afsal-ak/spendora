@@ -84,35 +84,50 @@ function getWorkflowRecommendation(
           reason:
             "ChatGPT works well for coding and debugging workflows.",
         },
+        
       ];
       break;
 
-    case "writing":
-      candidates = [
-        {
-          tool: "Claude",
-          plan:
-            ClaudePlans.PRO,
-          priceUSD:
-            claudePricing.pro
-              .priceUSD,
-          reason:
-            "Claude performs especially well for writing and long-form content.",
-        },
+   
+case "writing":
+  candidates = [
+    {
+      tool: "Claude",
+      plan:
+        ClaudePlans.PRO,
+      priceUSD:
+        claudePricing.pro
+          .priceUSD,
+      reason:
+        "Claude performs especially well for writing and long-form content.",
+    },
 
-        {
-          tool: "ChatGPT",
-          plan:
-            ChatGPTPlans.PLUS,
-          priceUSD:
-            chatgptPricing.plus
-              .priceUSD,
-          reason:
-            "ChatGPT works well for general writing workflows.",
-        },
-      ];
-      break;
+    {
+      tool: "ChatGPT",
+      plan:
+        ChatGPTPlans.PLUS,
+      priceUSD:
+        chatgptPricing.plus
+          .priceUSD,
+      reason:
+        "ChatGPT works well for general writing workflows.",
+    },
 
+
+    // //new model added now for testing reaudit work successfully
+    // {
+    //   tool: "ChatGPT",
+    //   plan:
+    //     ChatGPTPlans.MAX,
+    //   priceUSD:
+    //     chatgptPricing.max
+    //       .priceUSD,
+    //   reason:
+    //     "ChatGPT Max provides stronger value for writing workflows.",
+    // },
+  ];
+
+  break;
     case "image":
       candidates = [
         {
@@ -149,11 +164,7 @@ function getWorkflowRecommendation(
       return null;
   }
 
-  // return candidates.sort(
-  //   (a, b) =>
-  //     a.priceUSD -
-  //     b.priceUSD
-  // )[0];
+  
   const validCandidates =
   candidates.filter(
     (candidate) =>
