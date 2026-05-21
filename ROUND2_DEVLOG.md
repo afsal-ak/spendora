@@ -85,7 +85,7 @@ Planned focus:
 - savings delta calculation
 - side-by-side diff view
 
-## 2026-05-21 19:00 - Completed re-audit diff view
+## 2026-05-21 18:20 - Completed re-audit diff view (~2h 20m)
 
 Completed the final Round 2 feature: re-audit comparison view. Implemented a re-run flow allowing users to compare previous recommendations with updated recommendations after pricing changes.
 
@@ -100,3 +100,17 @@ Implemented:
 
 Final flow:
 pricing change detection → re-audit → save updated result → send email → compare previous vs updated recommendation
+
+## 2026-05-21 19:45 - Updated audit tests after recommendation logic changes
+
+Updated audit engine test cases to align with the new workflow recommendation logic introduced during re-audit improvements.
+
+Adjusted tests to reflect updated recommendation behavior where workflow-based suggestions can now trigger tool switching instead of keeping the existing setup when a lower-cost or better-suited alternative is available.
+
+Updated:
+- audit engine unit tests
+- workflow recommendation expectations
+- switch vs keep recommendation assertions
+- test coverage for image/video workflow recommendations
+
+Ensured all test cases pass after audit logic refactor and recommendation prioritization updates.
