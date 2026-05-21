@@ -35,3 +35,12 @@ Implemented manual `/api/detect-changes` endpoint to fetch stored audits, compar
 ## 2026-05-21 00:30 - Testing + edge case fixes (~40m)
 
 Tested recommendation changes, pricing-only changes, downgrade scenarios, and found issues with negative savings during unusual pricing combinations. Adjusted recommendation logic and validation to make re-audit behavior more consistent. Finished implementation and committed changes around 01:10.
+
+
+
+## 2026-05-21 02:00 - Sleep
+Slept 02:00–08:00. Chose to continue fresh instead of pushing through exhausted and introducing bugs into the re-audit flow.
+
+## 2026-05-21 08:20 - Back to implementation
+
+Reviewed remaining work after sleep. Prioritizing notification emails first because it completes the end-to-end user flow before starting the diff view.
