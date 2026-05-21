@@ -71,3 +71,16 @@ Tested multiple scenarios including:
 - unchanged recommendation skip logic
 - new plan/model availability affecting recommendations
 - removed plan 
+
+
+## 2026-05-21 16:00 - Started diff view implementation
+
+Started working on the final required feature (re-audit diff view). Planning to create a dedicated re-run flow so users can compare their previous audit with updated recommendations after pricing changes.
+
+Will reuse existing audit logic instead of rebuilding recommendations from scratch. Starting with a simple comparison flow (old audit → re-run with latest pricing → show differences) before improving UI polish.
+
+Planned focus:
+- re-audit endpoint
+- recommendation comparison logic
+- savings delta calculation
+- side-by-side diff view
